@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Delete Account - Jewelry Store{% endblock %}
+
+{% block content %}
+
+<div style="background: var(--light-color); padding: 2rem 0; margin-bottom: 2rem;">
+    <div class="container">
+        <h1>Delete Account</h1>
+    </div>
+</div>
+
+<div class="container py-4">
+    <div style="max-width: 600px; margin: 0 auto;">
+        <div style="background: var(--white); padding: 3rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border-left: 4px solid #dc3545;">
+            
+            <!-- WARNING ALERT -->
+            <div style="background: #fff3cd; border: 1px solid #ffc107; border-radius: 4px; padding: 1rem; margin-bottom: 2rem; display: flex; gap: 1rem; align-items: flex-start;">
+                <i class="fas fa-exclamation-triangle" style="color: #ff6b6b; font-size: 1.2rem; flex-shrink: 0;"></i>
+                <div>
+                    <strong style="color: #856404;">⚠️ Warning: This action cannot be undone</strong>
+                    <p style="margin: 0.5rem 0 0 0; color: #856404; font-size: 0.9rem;">Your account and all associated data will be permanently deleted.</p>
+                </div>
+            </div>
+            
+            <h3 style="margin-bottom: 1rem; color: var(--dark-color);">Are you sure you want to delete your account?</h3>
+            
+            <p style="color: var(--text-light); margin-bottom: 1rem;">If you delete your account:</p>
+            
+            <ul style="list-style: none; padding: 0; margin-bottom: 2rem;">
+                <li style="padding: 0.5rem 0; color: var(--text-light); display: flex; align-items: center; gap: 0.75rem;">
+                    <i class="fas fa-times-circle" style="color: #dc3545;"></i>
+                    Your profile will be permanently deleted
+                </li>
+                <li style="padding: 0.5rem 0; color: var(--text-light); display: flex; align-items: center; gap: 0.75rem;">
+                    <i class="fas fa-times-circle" style="color: #dc3545;"></i>
+                    All your orders and order history will be removed
+                </li>
+                <li style="padding: 0.5rem 0; color: var(--text-light); display: flex; align-items: center; gap: 0.75rem;">
+                    <i class="fas fa-times-circle" style="color: #dc3545;"></i>
+                    Your wishlist will be deleted
+                </li>
+                <li style="padding: 0.5rem 0; color: var(--text-light); display: flex; align-items: center; gap: 0.75rem;">
+                    <i class="fas fa-times-circle" style="color: #dc3545;"></i>
+                    You will not be able to recover this data
+                </li>
+            </ul>
+            
+            <p style="color: var(--text-light); margin-bottom: 2rem;">If you want to continue with the deletion, please click the delete button below.</p>
+            
+            <form method="POST">
+                {% csrf_token %}
+                
+                <div style="display: flex; gap: 1rem;">
+                    <!-- Delete Button -->
+                    <button type="submit" class="btn btn-danger btn-lg" style="background: #dc3545; border-color: #dc3545; flex: 1;">
+                        <i class="fas fa-trash"></i> Delete My Account
+                    </button>
+                    
+                    <!-- Cancel Button -->
+                    <a href="{% url 'profile' %}" class="btn btn-outline btn-lg" style="flex: 1;">
+                        <i class="fas fa-arrow-left"></i> Cancel
+                    </a>
+                </div>
+            </form>
+            
+            <p style="text-align: center; color: var(--text-light); margin-top: 1.5rem; font-size: 0.9rem;">
+                Having second thoughts? You can <a href="{% url 'profile' %}" style="color: var(--gold-color); text-decoration: none;">return to your profile</a> anytime.
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- CSS for danger button -->
+<style>
+    .btn-danger {
+        background-color: #dc3545 !important;
+        border-color: #dc3545 !important;
+        color: white !important;
+        transition: var(--transition);
+    }
+    
+    .btn-danger:hover {
+        background-color: #c82333 !important;
+        border-color: #bd2130 !important;
+        transform: translateY(-2px);
+    }
+</style>
+
+{% endblock %}

@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Orders - Jewelry Store{% endblock %}
+
+{% block content %}
+
+<div style="background: var(--light-color); padding: 2rem 0; margin-bottom: 2rem;">
+    <div class="container">
+        <h1>My Orders</h1>
+    </div>
+</div>
+
+<div class="container py-4">
+    {% if orders %}
+        <div>
+            {% for order in orders %}
+                <div style="background: var(--white); padding: 2rem; border-radius: 8px; margin-bottom: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                    
+                    <!-- Order Header -->
+                    <div style="display: grid; grid-template-columns: 1fr auto; gap: 2rem; margin-bottom: 1.5rem; align-items: start;">
+                        <div>
+                            <div class="justify-between" style="margin-bottom: 0.5rem;">
+                                <h5 style="margin: 0;">Order #{{ order.order_number }}</h5>
+                                <span class="product-badge {% if order.status == 'delivered' %}discount{% endif %}">
+                                    {{ order.get_status_display }}
+                                </span>
+                            </div>
+                            <p style="margin: 0.5rem 0 0; color: var(--text-light); font-size: 0.9rem;">
+                                <i class="fas fa-calendar"></i> {{ order.created_at|date:"M d, Y g:i A" }}
+                            </p>
+                        </div>
+                        <div style="text-align: right;">
+                            <h5 style="margin: 0; color: var(--primary-color);">₹{{ order.total_price|floatformat:0 }}</h5>
+                            <small style="color: var(--text-light);">{{ order.items.count }} item{{ order.items.count|pluralize }}</small>
+                        </div>
+                    </div>
+                    
+                    <hr style="border: none; border-top: 1px solid var(--border-color); margin: 1.5rem 0;">
+                    
+                    <!-- Order Items -->
+                    <div style="margin-bottom: 1.5rem;">
+                        {% for item in order.items.all|slice:":3" %}
+                            <div style="display: flex; gap: 1rem; padding: 0.75rem 0; align-items: center;">
+                                <img src="{% if item.product.image %}{{ item.product.image.url }}{% else %}{% static 'images/placeholder.svg' %}{% endif %}" 
+                                     alt="{{ item.product.name }}" 
+                                     style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
+                                <div style="flex: 1;">
+                                    <p style="margin: 0; color: var(--dark-color); font-weight: 500;">{{ item.product.name }}</p>
+                                    <small style="color: var(--text-light);">Qty: {{ item.quantity }} × ₹{{ item.price|floatformat:0 }}</small>
+                                </div>
+                            </div>
+                        {% endfor %}
+                        {% if order.items.count > 3 %}
+                            <p style="color: var(--text-light); margin: 0.75rem 0 0; font-size: 0.9rem;">
+                                +{{ order.items.count|add:"-3" }} more item{{ order.items.count|add:"-3"|pluralize }}
+                            </p>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Order Details -->
+                    <div style="background: var(--light-color); padding: 1rem; border-radius: 4px; margin-bottom: 1.5rem; font-size: 0.9rem;">
+                        <div class="justify-between" style="margin-bottom: 0.5rem;">
+                            <span>Shipping Address:</span>
+                            <span>{{ order.address }}, {{ order.city }}, {{ order.state }}</span>
+                        </div>
+                        <div class="justify-between">
+                            <span>Payment Method:</span>
+                            <span style="text-transform: capitalize;">{{ order.get_payment_method_display }}</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div style="display: flex; gap: 1rem;">
+                        <a href="{% url 'order_confirmation' order.id %}" class="btn btn-primary btn-sm">
+                            <i class="fas fa-eye"></i> View Details
+                        </a>
+                        {% if order.status != 'delivered' %}
+                            <button class="btn btn-outline btn-sm">
+                                <i class="fas fa-map-pin"></i> Track Order
+                            </button>
+                        {% else %}
+                            <button class="btn btn-outline btn-sm">
+                                <i class="fas fa-sync-alt"></i> Reorder
+                            </button>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Pagination -->
+        {% if orders.has_other_pages %}
+            <div class="pagination mt-4">
+                {% if orders.has_previous %}
+                    <a href="?page=1">First</a>
+                    <a href="?page={{ orders.previous_page_number }}">Previous</a>
+                {% endif %}
+                
+                {% for num in orders.paginator.page_range %}
+                    {% if orders.number == num %}
+                        <span class="current">{{ num }}</span>
+                    {% elif num > orders.number|add:'-3' and num < orders.number|add:'3' %}
+                        <a href="?page={{ num }}">{{ num }}</a>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if orders.has_next %}
+                    <a href="?page={{ orders.next_page_number }}">Next</a>
+                    <a href="?page={{ orders.paginator.num_pages }}">Last</a>
+                {% endif %}
+            </div>
+        {% endif %}
+    {% else %}
+        <div style="text-align: center; padding: 4rem 2rem;">
+            <i class="fas fa-box" style="font-size: 4rem; color: var(--border-color); margin-bottom: 1rem; display: block; opacity: 0.5;"></i>
+            <h2>No orders yet</h2>
+            <p class="text-muted mb-3">Start shopping to place your first order!</p>
+            <a href="{% url 'shop' %}" class="btn btn-primary btn-lg">
+                <i class="fas fa-shopping-bag"></i> Start Shopping
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+{% endblock %}

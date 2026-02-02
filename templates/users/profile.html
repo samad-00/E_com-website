@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Profile - Jewelry Store{% endblock %}
+
+{% block content %}
+
+<div style="background: var(--light-color); padding: 2rem 0; margin-bottom: 2rem;">
+    <div class="container">
+        <h1>My Profile</h1>
+    </div>
+</div>
+
+<div class="container py-4">
+    <div style="display: grid; grid-template-columns: 1fr 3fr; gap: 2rem;">
+        
+        <!-- SIDEBAR -->
+        <aside>
+            <!-- Profile Card -->
+            <div style="background: var(--white); padding: 2rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;">
+                {% if profile.avatar %}
+                    <img src="{{ profile.avatar.url }}" alt="{{ user.username }}" 
+                         style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; margin-bottom: 1rem;">
+                {% else %}
+                    <div style="width: 100px; height: 100px; border-radius: 50%; background: var(--light-color); display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-size: 2.5rem; color: var(--border-color);">
+                        <i class="fas fa-user"></i>
+                    </div>
+                {% endif %}
+                
+                <h4 style="color: var(--dark-color); margin-bottom: 0.25rem;">{{ user.get_full_name|default:user.username }}</h4>
+                <p style="color: var(--text-light); margin: 0 0 1rem;">{{ user.email }}</p>
+                
+                <a href="{% url 'edit_profile' %}" class="btn btn-primary btn-sm btn-block" style="margin-bottom: 0.5rem;">
+                    <i class="fas fa-edit"></i> Edit Profile
+                </a>
+                
+                <a href="{% url 'change_password' %}" class="btn btn-outline btn-sm btn-block">
+                    <i class="fas fa-key"></i> Change Password
+                </a>
+            </div>
+            
+            <!-- Menu -->
+            <div style="background: var(--white); padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-top: 1rem;">
+                <nav style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    <a href="{% url 'profile' %}" style="padding: 0.75rem; color: var(--primary-color); background: var(--light-color); border-radius: 4px; font-weight: 600;">
+                        <i class="fas fa-user-circle"></i> Profile
+                    </a>
+                    <a href="{% url 'user_orders' %}" style="padding: 0.75rem; color: var(--dark-color); transition: var(--transition);" onmouseover="this.style.backgroundColor='var(--light-color)'" onmouseout="this.style.backgroundColor='transparent'">
+                        <i class="fas fa-box"></i> Orders
+                    </a>
+                    <a href="{% url 'wishlist' %}" style="padding: 0.75rem; color: var(--dark-color); transition: var(--transition);" onmouseover="this.style.backgroundColor='var(--light-color)'" onmouseout="this.style.backgroundColor='transparent'">
+                        <i class="fas fa-heart"></i> Wishlist
+                    </a>
+                    <a href="{% url 'edit_profile' %}" style="padding: 0.75rem; color: var(--dark-color); transition: var(--transition);" onmouseover="this.style.backgroundColor='var(--light-color)'" onmouseout="this.style.backgroundColor='transparent'">
+                        <i class="fas fa-cog"></i> Settings
+                    </a>
+                    <a href="{% url 'logout' %}" style="padding: 0.75rem; color: var(--danger); transition: var(--transition); border-top: 1px solid var(--border-color); margin-top: 0.5rem;">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </nav>
+            </div>
+        </aside>
+        
+        <!-- MAIN CONTENT -->
+        <main>
+            <!-- Personal Information -->
+            <div style="background: var(--white); padding: 2rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 2rem;">
+                <h3 style="margin-bottom: 1.5rem;">Personal Information</h3>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                    <div>
+                        <p style="color: var(--text-light); margin: 0 0 0.5rem; font-size: 0.9rem;"><small>FIRST NAME</small></p>
+                        <p style="color: var(--dark-color); margin: 0; font-weight: 500;">{{ user.first_name|default:"Not set" }}</p>
+                    </div>
+                    <div>
+                        <p style="color: var(--text-light); margin: 0 0 0.5rem; font-size: 0.9rem;"><small>LAST NAME</small></p>
+                        <p style="color: var(--dark-color); margin: 0; font-weight: 500;">{{ user.last_name|default:"Not set" }}</p>
+                    </div>
+                    <div>
+                        <p style="color: var(--text-light); margin: 0 0 0.5rem; font-size: 0.9rem;"><small>EMAIL</small></p>
+                        <p style="color: var(--dark-color); margin: 0; font-weight: 500;">{{ user.email }}</p>
+                    </div>
+                    <div>
+                        <p style="color: var(--text-light); margin: 0 0 0.5rem; font-size: 0.9rem;"><small>USERNAME</small></p>
+                        <p style="color: var(--dark-color); margin: 0; font-weight: 500;">{{ user.username }}</p>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 1.5rem;">
+                    <a href="{% url 'edit_profile' %}" class="btn btn-primary">
+                        <i class="fas fa-edit"></i> Edit Information
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Address Information -->
+            <div style="background: var(--white); padding: 2rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 2rem;">
+                <h3 style="margin-bottom: 1.5rem;">Address Information</h3>
+                
+                {% if profile.address %}
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 1.5rem;">
+                        <div>
+                            <p style="color: var(--text-light); margin: 0 0 0.5rem; font-size: 0.9rem;"><small>ADDRESS</small></p>
+                            <p style="color: var(--dark-color); margin: 0; font-weight: 500;">{{ profile.address }}</p>
+                        </div>
+                        <div>
+                            <p style="color: var(--text-light); margin: 0 0 0.5rem; font-size: 0.9rem;"><small>CITY</small></p>
+                            <p style="color: var(--dark-color); margin: 0; font-weight: 500;">{{ profile.city }}</p>
+                        </div>
+                        <div>
+                            <p style="color: var(--text-light); margin: 0 0 0.5rem; font-size: 0.9rem;"><small>STATE</small></p>
+                            <p style="color: var(--dark-color); margin: 0; font-weight: 500;">{{ profile.state }}</p>
+                        </div>
+                        <div>
+                            <p style="color: var(--text-light); margin: 0 0 0.5rem; font-size: 0.9rem;"><small>POSTAL CODE</small></p>
+                            <p style="color: var(--dark-color); margin: 0; font-weight: 500;">{{ profile.postal_code }}</p>
+                        </div>
+                    </div>
+                {% else %}
+                    <p style="color: var(--text-light); margin: 0 0 1.5rem;">No address information saved yet.</p>
+                {% endif %}
+                
+                <a href="{% url 'edit_profile' %}" class="btn btn-primary">
+                    <i class="fas fa-edit"></i> Edit Address
+                </a>
+            </div>
+            
+            <!-- Account Statistics -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <div style="background: var(--light-color); padding: 2rem; border-radius: 8px; text-align: center;">
+                    <div style="font-size: 2rem; color: var(--primary-color); font-weight: 700; margin-bottom: 0.5rem;">
+                        {{ user.orders.count }}
+                    </div>
+                    <p style="margin: 0; color: var(--text-light);">Total Orders</p>
+                </div>
+                
+                <div style="background: var(--light-color); padding: 2rem; border-radius: 8px; text-align: center;">
+                    <div style="font-size: 2rem; color: var(--primary-color); font-weight: 700; margin-bottom: 0.5rem;">
+                        {% if user.wishlist %}{{ user.wishlist.products.count }}{% else %}0{% endif %}
+                    </div>
+                    <p style="margin: 0; color: var(--text-light);">Wishlist Items</p>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- RESPONSIVE STYLES -->
+<style>
+    @media (max-width: 768px) {
+        div[style*="grid-template-columns: 1fr 3fr"] {
+            grid-template-columns: 1fr !important;
+        }
+    }
+</style>
+
+{% endblock %}

@@ -1,0 +1,289 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ product.name }} - Jewelry Store{% endblock %}
+
+{% block content %}
+
+<div class="container py-4">
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 3rem;">
+        
+        <!-- PRODUCT IMAGES -->
+        <div>
+            <div class="product-image" style="padding-bottom: 100%; position: relative; margin-bottom: 1rem;">
+                <img id="main-image" 
+                     src="{% if product.image %}{{ product.image.url }}{% else %}{% static 'images/placeholder.svg' %}{% endif %}" 
+                     alt="{{ product.name }}"
+                     style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; cursor: zoom-in;">
+            </div>
+            
+            <!-- Thumbnail Gallery -->
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+                <div {% if product.image %}onclick="changeImage('{{ product.image.url }}')"{% endif %} style="cursor: pointer; border-radius: 4px; overflow: hidden; border: 2px solid var(--primary-color);">
+                    <img src="{% if product.image %}{{ product.image.url }}{% else %}{% static 'images/placeholder.jpg' %}{% endif %}" 
+                         alt="Image 1" 
+                         style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                {% if product.image_2 %}
+                    <div onclick="changeImage('{{ product.image_2.url }}')" style="cursor: pointer; border-radius: 4px; overflow: hidden; border: 2px solid var(--border-color);">
+                        <img src="{{ product.image_2.url }}" alt="Image 2" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+                {% endif %}
+                {% if product.image_3 %}
+                    <div onclick="changeImage('{{ product.image_3.url }}')" style="cursor: pointer; border-radius: 4px; overflow: hidden; border: 2px solid var(--border-color);">
+                        <img src="{{ product.image_3.url }}" alt="Image 3" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- PRODUCT INFO -->
+        <div>
+            <p class="product-category">{{ product.category.name }}</p>
+            <h1 style="margin-bottom: 1rem;">{{ product.name }}</h1>
+            
+            <!-- Rating -->
+            <div class="product-rating" style="margin-bottom: 1rem;">
+                {% for i in "12345" %}
+                    {% if forloop.counter <= avg_rating %}
+                        <span class="star">★</span>
+                    {% else %}
+                        <span class="star empty">★</span>
+                    {% endif %}
+                {% endfor %}
+                <span style="margin-left: 0.5rem; color: var(--text-light);">({{ reviews.count }} reviews)</span>
+            </div>
+            
+            <!-- Price -->
+            <div class="product-price" style="margin-bottom: 1rem;">
+                {% if product.original_price %}
+                    <span class="original">₹{{ product.original_price|floatformat:0 }}</span>
+                {% endif %}
+                ₹{{ product.price|floatformat:0 }}
+                {% if product.get_discount_percentage > 0 %}
+                    <span class="product-badge" style="margin-left: 1rem;">Save {{ product.get_discount_percentage }}%</span>
+                {% endif %}
+            </div>
+            
+            <!-- Stock Status -->
+            <div style="margin-bottom: 2rem;">
+                {% if product.stock > 0 %}
+                    <p style="color: var(--success);"><i class="fas fa-check-circle"></i> In Stock ({{ product.stock }} available)</p>
+                {% else %}
+                    <p style="color: var(--danger);"><i class="fas fa-times-circle"></i> Out of Stock</p>
+                {% endif %}
+            </div>
+            
+            <!-- Description -->
+            <p style="line-height: 1.8; margin-bottom: 2rem;">{{ product.description }}</p>
+            
+            <!-- Add to Cart Form -->
+            {% if user.is_authenticated %}
+                <form method="POST" action="{% url 'add_to_cart' product.id %}">
+                    {% csrf_token %}
+                    <div style="display: grid; grid-template-columns: 100px 1fr; gap: 1rem; margin-bottom: 1rem;">
+                        <div>
+                            <label class="form-label">Quantity:</label>
+                            <input type="number" name="quantity" class="form-control" value="1" min="1" max="{{ product.stock }}">
+                        </div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr auto; gap: 1rem;">
+                        <button type="submit" class="btn btn-primary btn-lg" {% if product.stock == 0 %}disabled{% endif %}>
+                            <i class="fas fa-shopping-bag"></i> Add to Cart
+                        </button>
+                        <button type="button" data-product-id="{{ product.id }}" onclick="toggleWishlist(this.dataset.productId)" class="btn btn-outline btn-lg">
+                            <i class="{% if in_wishlist %}fas{% else %}far{% endif %} fa-heart"></i>
+                        </button>
+                    </div>
+                </form>
+            {% else %}
+                <p style="margin-bottom: 1rem; color: var(--danger);">
+                    <i class="fas fa-info-circle"></i> Please <a href="{% url 'login' %}">login</a> to add items to cart
+                </p>
+                <div style="display: grid; grid-template-columns: 1fr auto; gap: 1rem;">
+                    <a href="{% url 'login' %}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-sign-in-alt"></i> Login
+                    </a>
+                    <a href="{% url 'register' %}" class="btn btn-outline btn-lg">
+                        <i class="fas fa-user-plus"></i> Register
+                    </a>
+                </div>
+            {% endif %}
+            
+            <!-- Product Details -->
+            <div style="background: var(--light-color); padding: 2rem; border-radius: 8px; margin-top: 2rem;">
+                <h4 style="margin-bottom: 1rem;">Product Details</h4>
+                <table style="width: 100%; font-size: 0.95rem;">
+                    <tr>
+                        <td style="padding: 0.5rem 0; color: var(--text-light);">Category:</td>
+                        <td style="padding: 0.5rem 0; color: var(--dark-color); font-weight: 600;">{{ product.category.name }}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.5rem 0; color: var(--text-light);">SKU:</td>
+                        <td style="padding: 0.5rem 0; color: var(--dark-color); font-weight: 600;">{{ product.id }}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.5rem 0; color: var(--text-light);">Added:</td>
+                        <td style="padding: 0.5rem 0; color: var(--dark-color); font-weight: 600;">{{ product.created_at|date:"M d, Y" }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- REVIEWS SECTION -->
+<section class="section" style="background: var(--light-color);">
+    <div class="container">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 3rem;">
+            
+            <!-- REVIEWS LIST -->
+            <div>
+                <h3 style="margin-bottom: 2rem;">Customer Reviews</h3>
+                
+                {% if reviews %}
+                    {% for review in reviews %}
+                        <div style="background: var(--white); padding: 1.5rem; border-radius: 4px; margin-bottom: 1rem;">
+                            <div class="justify-between" style="margin-bottom: 0.5rem;">
+                                <div>
+                                    <strong style="color: var(--dark-color);">{{ review.user.get_full_name|default:review.user.username }}</strong>
+                                    <p style="font-size: 0.85rem; color: var(--text-light);">{{ review.created_at|timesince }} ago</p>
+                                </div>
+                                <div class="product-rating">
+                                    {% for i in "12345" %}
+                                        {% if forloop.counter <= review.rating %}
+                                            <span class="star">★</span>
+                                        {% else %}
+                                            <span class="star empty">★</span>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <p style="margin: 0; line-height: 1.6;">{{ review.comment }}</p>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p style="text-align: center; color: var(--text-light); padding: 2rem;">
+                        No reviews yet. Be the first to review this product!
+                    </p>
+                {% endif %}
+            </div>
+            
+            <!-- REVIEW FORM -->
+            <div>
+                <h3 style="margin-bottom: 2rem;">Leave a Review</h3>
+                
+                {% if user.is_authenticated %}
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label class="form-label">Your Rating</label>
+                            <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+                                {% for value, label in review_form.fields.rating.choices %}
+                                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                        <input type="radio" name="rating" value="{{ value }}" required>
+                                        <span>{{ label }}</span>
+                                    </label>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Your Review</label>
+                            <textarea name="comment" class="form-control" placeholder="Share your experience with this product..." rows="5" required></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-block">
+                            <i class="fas fa-paper-plane"></i> Submit Review
+                        </button>
+                    </form>
+                {% else %}
+                    <div style="background: var(--white); padding: 2rem; border-radius: 4px; text-align: center;">
+                        <p style="margin-bottom: 1rem;">Please <a href="{% url 'login' %}">login</a> to leave a review</p>
+                        <a href="{% url 'login' %}" class="btn btn-primary">Login to Review</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- RELATED PRODUCTS -->
+{% if related_products %}
+    <section class="section">
+        <div class="container">
+            <div class="section-title">
+                <h2>Related Products</h2>
+            </div>
+            
+            <div class="product-grid">
+                {% for product in related_products %}
+                    <div class="product-card">
+                        <div class="product-image">
+                            <img src="{% if product.image %}{{ product.image.url }}{% else %}{% static 'images/placeholder.jpg' %}{% endif %}" 
+                                 alt="{{ product.name }}" 
+                                 loading="lazy">
+                            <div class="product-badge">
+                                {% if product.get_discount_percentage > 0 %}
+                                    -{{ product.get_discount_percentage }}%
+                                {% else %}
+                                    {% if product.is_new %}New{% endif %}
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="product-info">
+                            <p class="product-category">{{ product.category.name }}</p>
+                            <h5 class="product-name">{{ product.name }}</h5>
+                            
+                            <div class="product-price">
+                                ₹{{ product.price|floatformat:0 }}
+                            </div>
+                            
+                            <div class="product-actions">
+                                <a href="{% url 'product_detail' product.slug %}" class="btn btn-primary btn-sm" style="width: 100%;">
+                                    <i class="fas fa-eye"></i> View
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+{% endif %}
+
+<!-- JAVASCRIPT -->
+<script>
+function changeImage(src) {
+    document.getElementById('main-image').src = src;
+}
+
+function toggleWishlist(productId) {
+    fetch(`/wishlist/toggle/${productId}/`, {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': '{{ csrf_token }}'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        }
+    });
+}
+</script>
+
+<!-- RESPONSIVE STYLES -->
+<style>
+    @media (max-width: 768px) {
+        div[style*="grid-template-columns: 1fr 1fr"] {
+            grid-template-columns: 1fr !important;
+        }
+    }
+</style>
+
+{% endblock %}

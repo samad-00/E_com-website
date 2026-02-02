@@ -1,0 +1,262 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Home - KIRAA Premium Jewelry{% endblock %}
+
+{% block content %}
+
+<!-- HERO SECTION -->
+<section class="hero">
+    <div class="container hero-content">
+        <h1>Discover Timeless Elegance</h1>
+        <p class="hero-subtitle">Luxury jewelry crafted for moments that matter</p>
+        <a href="{% url 'shop' %}" class="btn btn-primary btn-lg">
+            <i class="fas fa-shopping-bag"></i> Shop Now
+        </a>
+    </div>
+</section>
+
+<!-- FEATURED PRODUCTS -->
+<section class="section">
+    <div class="container">
+        <div class="section-title">
+            <h2>Featured Collection</h2>
+            <p class="section-subtitle">Handpicked pieces for the modern woman</p>
+        </div>
+        
+        <div class="product-grid">
+            {% for product in featured_products %}
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="{% if product.image %}{{ product.image.url }}{% else %}{% static 'images/placeholder.svg' %}{% endif %}" 
+                             alt="{{ product.name }}" 
+                             loading="lazy">
+                        <div class="product-badge">
+                            {% if product.get_discount_percentage > 0 %}
+                                -{{ product.get_discount_percentage }}%
+                            {% else %}
+                                Featured
+                            {% endif %}
+                        </div>
+                        {% if user.is_authenticated %}
+                            <div class="product-wishlist" data-product-id="{{ product.id }}" onclick="toggleWishlist(this.dataset.productId)">
+                                <i class="{% if product in user.wishlist.products.all %}fas{% else %}far{% endif %} fa-heart"></i>
+                            </div>
+                        {% endif %}
+                        <a href="{% url 'product_detail' product.slug %}" class="product-view-btn" title="View Product">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                    </div>
+                    
+                    <div class="product-info">
+                        <p class="product-category">{{ product.category.name }}</p>
+                        <h5 class="product-name">{{ product.name }}</h5>
+                        
+                        <div class="product-rating">
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= product.average_rating %}
+                                    <span class="star">★</span>
+                                {% else %}
+                                    <span class="star empty">★</span>
+                                {% endif %}
+                            {% endfor %}
+                            <span style="color: var(--text-light); margin-left: 0.3rem;">({{ product.reviews.count }})</span>
+                        </div>
+                        
+                        <div class="product-price">
+                            {% if product.original_price %}
+                                <span class="original">₹{{ product.original_price|floatformat:0 }}</span>
+                            {% endif %}
+                            ₹{{ product.price|floatformat:0 }}
+                        </div>
+                        
+                        <div class="product-actions">
+                            <form method="POST" action="{% url 'add_to_cart' product.id %}" style="width: 100%;">
+                                {% csrf_token %}
+                                <input type="hidden" name="quantity" value="1">
+                                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                                    <i class="fas fa-shopping-bag"></i> Add to Cart
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- NEW ARRIVALS -->
+<section class="section" style="background: var(--light-color);">
+    <div class="container">
+        <div class="section-title">
+            <h2>New Arrivals</h2>
+            <p class="section-subtitle">Fresh additions to our luxury collection</p>
+        </div>
+        
+        <div class="product-grid">
+            {% for product in new_products %}
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="{% if product.image %}{{ product.image.url }}{% else %}{% static 'images/placeholder.svg' %}{% endif %}" 
+                             alt="{{ product.name }}" 
+                             loading="lazy">
+                        <div class="product-badge">New</div>
+                        {% if user.is_authenticated %}
+                            <div class="product-wishlist" data-product-id="{{ product.id }}" onclick="toggleWishlist(this.dataset.productId)">
+                                <i class="{% if product in user.wishlist.products.all %}fas{% else %}far{% endif %} fa-heart"></i>
+                            </div>
+                        {% endif %}
+                        <a href="{% url 'product_detail' product.slug %}" class="product-view-btn" title="View Product">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                    </div>
+                    
+                    <div class="product-info">
+                        <p class="product-category">{{ product.category.name }}</p>
+                        <h5 class="product-name">{{ product.name }}</h5>
+                        
+                        <div class="product-rating">
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= product.average_rating %}
+                                    <span class="star">★</span>
+                                {% else %}
+                                    <span class="star empty">★</span>
+                                {% endif %}
+                            {% endfor %}
+                            <span style="color: var(--text-light); margin-left: 0.3rem;">({{ product.reviews.count }})</span>
+                        </div>
+                        
+                        <div class="product-price">
+                            ₹{{ product.price|floatformat:0 }}
+                        </div>
+                        
+                        <div class="product-actions">
+                            <form method="POST" action="{% url 'add_to_cart' product.id %}" style="width: 100%;">
+                                {% csrf_token %}
+                                <input type="hidden" name="quantity" value="1">
+                                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                                    <i class="fas fa-shopping-bag"></i> Add to Cart
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- CATEGORIES -->
+<section class="section">
+    <div class="container">
+        <div class="section-title">
+            <h2>Shop by Category</h2>
+            <p class="section-subtitle">Browse our curated collections</p>
+        </div>
+        
+        <div class="product-grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
+            {% for category in categories %}
+                <a href="{% url 'category' category.slug %}" class="category-card" style="
+                    display: block;
+                    padding: 3rem;
+                    background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(26, 26, 26, 0.05) 100%);
+                    border-radius: 8px;
+                    text-align: center;
+                    transition: all 0.3s;
+                    text-decoration: none;
+                    border: 2px solid transparent;
+                ">
+                    <i class="fas fa-gem" style="font-size: 3rem; color: var(--primary-color); margin-bottom: 1rem;"></i>
+                    <h4 style="color: var(--dark-color); margin-bottom: 0.5rem;">{{ category.name }}</h4>
+                    <p style="color: var(--text-light); font-size: 0.9rem;">{{ category.products.count }} items</p>
+                </a>
+            {% endfor %}
+        </div>
+        
+        <style>
+            .category-card:hover {
+                border-color: var(--primary-color);
+                background: linear-gradient(135deg, rgba(212, 175, 55, 0.15) 0%, rgba(26, 26, 26, 0.08) 100%);
+                transform: translateY(-5px);
+            }
+        </style>
+    </div>
+</section>
+
+<!-- PROMOTIONAL BANNER -->
+<section class="section" style="background: linear-gradient(135deg, var(--dark-color) 0%, rgba(26, 26, 26, 0.95) 100%); color: white; padding: 5rem 0;">
+    <div class="container text-center">
+        <h2 style="color: white; margin-bottom: 1rem;">Exclusive Offer</h2>
+        <p style="font-size: 1.2rem; margin-bottom: 2rem; color: var(--primary-color);">
+            Get <strong>20% off</strong> on your first order with code <strong>LUXURY20</strong>
+        </p>
+        <a href="{% url 'shop' %}" class="btn btn-primary btn-lg">
+            Shop the Collection
+        </a>
+    </div>
+</section>
+
+<!-- WHY CHOOSE US -->
+<section class="section">
+    <div class="container">
+        <div class="section-title">
+            <h2>Why Choose Luxura</h2>
+        </div>
+        
+        <div class="row" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem;">
+            <div class="feature-card" style="text-align: center; padding: 2rem;">
+                <div style="font-size: 3rem; color: var(--primary-color); margin-bottom: 1rem;">
+                    <i class="fas fa-crown"></i>
+                </div>
+                <h4 style="color: var(--dark-color);">Premium Quality</h4>
+                <p>Each piece is meticulously crafted using the finest materials.</p>
+            </div>
+            
+            <div class="feature-card" style="text-align: center; padding: 2rem;">
+                <div style="font-size: 3rem; color: var(--primary-color); margin-bottom: 1rem;">
+                    <i class="fas fa-truck"></i>
+                </div>
+                <h4 style="color: var(--dark-color);">Free Shipping</h4>
+                <p>Complimentary delivery on orders over ₹5000 worldwide.</p>
+            </div>
+            
+            <div class="feature-card" style="text-align: center; padding: 2rem;">
+                <div style="font-size: 3rem; color: var(--primary-color); margin-bottom: 1rem;">
+                    <i class="fas fa-undo"></i>
+                </div>
+                <h4 style="color: var(--dark-color);">Easy Returns</h4>
+                <p>30-day money-back guarantee on all purchases.</p>
+            </div>
+            
+            <div class="feature-card" style="text-align: center; padding: 2rem;">
+                <div style="font-size: 3rem; color: var(--primary-color); margin-bottom: 1rem;">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h4 style="color: var(--dark-color);">Secure Payment</h4>
+                <p>Your transactions are protected with SSL encryption.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- JAVASCRIPT FOR WISHLIST -->
+<script>
+function toggleWishlist(productId) {
+    fetch(`/wishlist/toggle/${productId}/`, {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': '{{ csrf_token }}'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        }
+    });
+}
+</script>
+
+{% endblock %}

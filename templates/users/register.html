@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Register - Jewelry Store{% endblock %}
+
+{% block content %}
+
+<div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--light-color) 0%, rgba(212, 175, 55, 0.05) 100%); padding: 2rem;">
+    <div style="width: 100%; max-width: 500px;">
+        
+        <!-- Form Container -->
+        <div style="background: var(--white); padding: 3rem; border-radius: 8px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);">
+            
+            <!-- Header -->
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <h1 style="margin-bottom: 0.5rem;">Create Account</h1>
+                <p class="text-muted">Join Luxura and start shopping</p>
+            </div>
+            
+            <!-- Registration Form -->
+            <form method="POST">
+                {% csrf_token %}
+                
+                <!-- Name Fields -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label class="form-label">First Name</label>
+                        {{ form.first_name }}
+                        {% if form.first_name.errors %}
+                            <div class="form-error">{{ form.first_name.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Last Name</label>
+                        {{ form.last_name }}
+                        {% if form.last_name.errors %}
+                            <div class="form-error">{{ form.last_name.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Username -->
+                <div class="form-group">
+                    <label class="form-label">Username</label>
+                    {{ form.username }}
+                    {% if form.username.errors %}
+                        <div class="form-error">{{ form.username.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                
+                <!-- Email -->
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    {{ form.email }}
+                    {% if form.email.errors %}
+                        <div class="form-error">{{ form.email.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                
+                <!-- Password -->
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    {{ form.password1 }}
+                    <small style="color: var(--text-light);">
+                        <i class="fas fa-info-circle"></i> At least 8 characters, mix of letters and numbers
+                    </small>
+                    {% if form.password1.errors %}
+                        <div class="form-error">{{ form.password1.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                
+                <!-- Confirm Password -->
+                <div class="form-group">
+                    <label class="form-label">Confirm Password</label>
+                    {{ form.password2 }}
+                    {% if form.password2.errors %}
+                        <div class="form-error">{{ form.password2.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                
+                <!-- Terms -->
+                <label class="form-check">
+                    <input type="checkbox" class="form-check-input" name="agree_terms" required>
+                    <span class="form-check-label">
+                        I agree to the <a href="#">Terms & Conditions</a> and <a href="#">Privacy Policy</a>
+                    </span>
+                </label>
+                
+                <!-- Newsletter -->
+                <label class="form-check">
+                    <input type="checkbox" class="form-check-input" name="newsletter" checked>
+                    <span class="form-check-label">
+                        Subscribe to our newsletter for exclusive offers
+                    </span>
+                </label>
+                
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-top: 1.5rem;">
+                    <i class="fas fa-user-plus"></i> Create Account
+                </button>
+            </form>
+            
+            <!-- Divider -->
+            <div style="display: flex; align-items: center; gap: 1rem; margin: 2rem 0;">
+                <hr style="flex: 1; border: none; border-top: 1px solid var(--border-color);">
+                <span style="color: var(--text-light); font-size: 0.9rem;">or</span>
+                <hr style="flex: 1; border: none; border-top: 1px solid var(--border-color);">
+            </div>
+            
+            <!-- Login Link -->
+            <div style="text-align: center;">
+                <p style="margin: 0; color: var(--text-light);">
+                    Already have an account? 
+                    <a href="{% url 'login' %}" style="color: var(--primary-color); font-weight: 600;">Sign in</a>
+                </p>
+            </div>
+            
+            <!-- Back Link -->
+            <div style="text-align: center; margin-top: 1.5rem;">
+                <a href="{% url 'home' %}" style="color: var(--text-light); font-size: 0.9rem;">
+                    <i class="fas fa-arrow-left"></i> Back to Home
+                </a>
+            </div>
+        </div>
+        
+        <!-- Security Message -->
+        <div style="text-align: center; margin-top: 2rem; color: var(--text-light); font-size: 0.85rem;">
+            <i class="fas fa-shield-alt" style="color: var(--primary-color); margin-right: 0.5rem;"></i>
+            Your information is secure and encrypted
+        </div>
+    </div>
+</div>
+
+{% endblock %}

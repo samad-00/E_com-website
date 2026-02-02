@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 400">
+  <defs>
+    <linearGradient id="lipstickGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ff1493;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#ff69b4;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ff1493;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="goldGradient5" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffd700;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#d4af37;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#aa8c2c;stop-opacity:1" />
+    </linearGradient>
+    <filter id="shadow"><feDropShadow dx="2" dy="2" stdDeviation="3" flood-opacity="0.3"/></filter>
+  </defs>
+  <rect width="300" height="400" fill="#f5f5f5"/>
+  <g filter="url(#shadow)">
+    <rect x="110" y="90" width="30" height="80" rx="5" fill="url(#lipstickGradient)" stroke="#d1004d" stroke-width="1"/>
+    <rect x="110" y="90" width="30" height="10" fill="url(#goldGradient5)" stroke="#aa8c2c" stroke-width="1" rx="3"/>
+    <path d="M 115 170 Q 110 180 115 190" stroke="#ff1493" stroke-width="2" fill="none"/>
+    <path d="M 145 170 Q 150 180 145 190" stroke="#ff1493" stroke-width="2" fill="none"/>
+    <rect x="160" y="90" width="30" height="80" rx="5" fill="#ff69b4" stroke="#ff1493" stroke-width="1"/>
+    <rect x="160" y="90" width="30" height="10" fill="url(#goldGradient5)" stroke="#aa8c2c" stroke-width="1" rx="3"/>
+    <path d="M 165 170 Q 160 180 165 190" stroke="#ff69b4" stroke-width="2" fill="none"/>
+    <path d="M 195 170 Q 200 180 195 190" stroke="#ff69b4" stroke-width="2" fill="none"/>
+  </g>
+  <text x="150" y="300" font-family="Arial, sans-serif" font-size="18" font-weight="bold" text-anchor="middle" fill="#1a1a1a">Premium Lipstick Set</text>
+  <text x="150" y="330" font-family="Arial, sans-serif" font-size="14" text-anchor="middle" fill="#666">3-Color Collection</text>
+  <text x="150" y="360" font-family="Arial, sans-serif" font-size="16" font-weight="bold" text-anchor="middle" fill="#d4af37">$89</text>
+</svg>

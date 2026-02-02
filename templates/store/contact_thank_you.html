@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Thank You - KIRAA{% endblock %}
+
+{% block content %}
+
+<div class="container" style="padding: 100px 20px; text-align: center;">
+    <div class="glass animate-fadeInUp" style="padding: 60px; max-width: 600px; margin: 0 auto;">
+        <!-- Success Icon -->
+        <div style="font-size: 4rem; color: var(--success); margin-bottom: 30px; animation: float 3s ease-in-out infinite;">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        
+        <h1 style="margin-bottom: 15px; font-size: 2.5rem;">Thank You!</h1>
+        <p class="section-subtitle" style="margin-bottom: 30px;">
+            Your inquiry has been received successfully.
+        </p>
+        
+        <p style="color: var(--text-light); margin-bottom: 30px; line-height: 1.8;">
+            We appreciate you reaching out to KIRAA. Our team has received your message and will respond within 24-48 hours. 
+            You'll receive a reply at the email address you provided.
+        </p>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 40px 0;">
+            <a href="{% url 'home' %}" class="btn btn-primary btn-lg" style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+                <i class="fas fa-home"></i> Back Home
+            </a>
+            <a href="{% url 'shop' %}" class="btn btn-outline btn-lg" style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+                <i class="fas fa-shopping-bag"></i> Continue Shopping
+            </a>
+        </div>
+        
+        <!-- Info Box -->
+        <div style="background: rgba(212, 175, 55, 0.1); border-left: 4px solid var(--primary-color); padding: 20px; margin-top: 30px; border-radius: 8px;">
+            <p style="color: var(--text-dark); margin: 0;">
+                <strong>Need immediate assistance?</strong><br>
+                Contact us at <a href="tel:+918001" style="color: var(--primary-color);">+91 (800) KIRAA-01</a> or 
+                <a href="mailto:support@kiraa.com" style="color: var(--primary-color);">support@kiraa.com</a>
+            </p>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

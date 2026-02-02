@@ -1,0 +1,226 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Shop - Jewelry Store{% endblock %}
+
+{% block content %}
+
+<div class="shop-banner">
+    <div class="page-banner-content">
+        <h1>Shop Our Collections</h1>
+        <p>Explore our curated selection of premium jewelry</p>
+    </div>
+</div>
+
+<div class="container py-4">
+    <div style="display: grid; grid-template-columns: 1fr 4fr; gap: 2rem;">
+        
+        <!-- SIDEBAR - FILTERS -->
+        <aside>
+            <!-- Search -->
+            <form method="GET" action="{% url 'shop' %}" style="margin-bottom: 2rem;">
+                <div class="form-group">
+                    <label for="search">Search Products</label>
+                    <input 
+                        type="text" 
+                        name="search" 
+                        id="search" 
+                        class="form-control" 
+                        placeholder="Search..."
+                        value="{{ search_query }}"
+                    >
+                </div>
+                
+                <!-- Category Filter -->
+                <div class="filter-section">
+                    <h4>Category</h4>
+                    <div class="filter-option">
+                        <label class="filter-checkbox">
+                            <input type="radio" name="category" value="" {% if not selected_category %}checked{% endif %}>
+                            All Categories
+                        </label>
+                        {% for category in categories %}
+                            <label class="filter-checkbox">
+                                <input type="radio" name="category" value="{{ category.slug }}" {% if selected_category == category.slug %}checked{% endif %}>
+                                {{ category.name }}
+                            </label>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <!-- Price Filter -->
+                <div class="filter-section">
+                    <h4>Price Range</h4>
+                    <div class="form-group">
+                        <label for="price-min">Min Price</label>
+                        <input type="number" name="price_min" id="price-min" class="form-control" placeholder="₹0" step="10">
+                    </div>
+                    <div class="form-group">
+                        <label for="price-max">Max Price</label>
+                        <input type="number" name="price_max" id="price-max" class="form-control" placeholder="₹10000" step="10">
+                    </div>
+                </div>
+                
+                <!-- Sort -->
+                <div class="filter-section">
+                    <h4>Sort By</h4>
+                    <select name="sort" class="form-control">
+                        <option value="-created_at" {% if selected_sort == '-created_at' %}selected{% endif %}>Newest</option>
+                        <option value="price_low" {% if selected_sort == 'price_low' %}selected{% endif %}>Price: Low to High</option>
+                        <option value="price_high" {% if selected_sort == 'price_high' %}selected{% endif %}>Price: High to Low</option>
+                        <option value="rating" {% if selected_sort == 'rating' %}selected{% endif %}>Top Rated</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-block">
+                    <i class="fas fa-filter"></i> Apply Filters
+                </button>
+                <a href="{% url 'shop' %}" class="btn btn-outline btn-block" style="margin-top: 0.5rem;">
+                    <i class="fas fa-times"></i> Clear Filters
+                </a>
+            </form>
+        </aside>
+        
+        <!-- MAIN CONTENT - PRODUCTS -->
+        <main>
+            <!-- Results Info -->
+            <div class="justify-between mb-3">
+                <div>
+                    <p class="text-muted">
+                        {% if search_query %}
+                            Showing search results for "<strong>{{ search_query }}</strong>"
+                        {% elif selected_category %}
+                            Showing products in "<strong>{{ selected_category }}</strong>"
+                        {% else %}
+                            Showing all products
+                        {% endif %}
+                    </p>
+                </div>
+                <p class="text-muted">Total: <strong>{{ products.paginator.count }}</strong> products</p>
+            </div>
+            
+            <!-- Products Grid -->
+            {% if products %}
+                <div class="product-grid">
+                    {% for product in products %}
+                        <div class="product-card">
+                            <div class="product-image">
+                                <img src="{% if product.image %}{{ product.image.url }}{% else %}{% static 'images/placeholder.svg' %}{% endif %}" 
+                                     alt="{{ product.name }}" 
+                                     loading="lazy">
+                                <div class="product-badge">
+                                    {% if product.get_discount_percentage > 0 %}
+                                        -{{ product.get_discount_percentage }}%
+                                    {% else %}
+                                        {% if product.is_new %}New{% endif %}
+                                    {% endif %}
+                                </div>
+                                {% if user.is_authenticated %}
+                                    <div class="product-wishlist" data-product-id="{{ product.id }}" onclick="toggleWishlist(this.dataset.productId)">
+                                        <i class="{% if product in user.wishlist.products.all %}fas{% else %}far{% endif %} fa-heart"></i>
+                                    </div>
+                                {% endif %}
+                                <a href="{% url 'product_detail' product.slug %}" class="product-view-btn" title="View Product">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </div>
+                            
+                            <div class="product-info">
+                                <p class="product-category">{{ product.category.name }}</p>
+                                <h5 class="product-name">{{ product.name }}</h5>
+                                
+                                <div class="product-rating">
+                                    {% for i in "12345" %}
+                                        {% if forloop.counter <= product.average_rating %}
+                                            <span class="star">★</span>
+                                        {% else %}
+                                            <span class="star empty">★</span>
+                                        {% endif %}
+                                    {% endfor %}
+                                    <span style="color: var(--text-light); margin-left: 0.3rem;">({{ product.reviews.count }})</span>
+                                </div>
+                                
+                                <div class="product-price">
+                                    {% if product.original_price %}
+                                        <span class="original">₹{{ product.original_price|floatformat:0 }}</span>
+                                    {% endif %}
+                                    ₹{{ product.price|floatformat:0 }}
+                                </div>
+                                
+                                <div class="product-actions">
+                                    <form method="POST" action="{% url 'add_to_cart' product.id %}" style="width: 100%;">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="quantity" value="1">
+                                        <button type="submit" class="btn btn-primary" style="width: 100%;">
+                                            <i class="fas fa-shopping-bag"></i> Add to Cart
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                
+                <!-- Pagination -->
+                {% if products.has_other_pages %}
+                    <div class="pagination mt-4">
+                        {% if products.has_previous %}
+                            <a href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}">First</a>
+                            <a href="?page={{ products.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}">Previous</a>
+                        {% endif %}
+                        
+                        {% for num in products.paginator.page_range %}
+                            {% if products.number == num %}
+                                <span class="current">{{ num }}</span>
+                            {% elif num > products.number|add:'-3' and num < products.number|add:'3' %}
+                                <a href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}">{{ num }}</a>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if products.has_next %}
+                            <a href="?page={{ products.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}">Next</a>
+                            <a href="?page={{ products.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}">Last</a>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            {% else %}
+                <div style="text-align: center; padding: 3rem;">
+                    <i class="fas fa-inbox" style="font-size: 3rem; color: var(--border-color); margin-bottom: 1rem; display: block;"></i>
+                    <h3>No products found</h3>
+                    <p class="text-muted">Try adjusting your filters or search terms</p>
+                    <a href="{% url 'shop' %}" class="btn btn-primary mt-2">View All Products</a>
+                </div>
+            {% endif %}
+        </main>
+    </div>
+</div>
+
+<!-- RESPONSIVE STYLES -->
+<style>
+    @media (max-width: 768px) {
+        div[style*="grid-template-columns: 1fr 4fr"] {
+            grid-template-columns: 1fr !important;
+        }
+    }
+</style>
+
+<!-- JAVASCRIPT -->
+<script>
+function toggleWishlist(productId) {
+    fetch(`/wishlist/toggle/${productId}/`, {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': '{{ csrf_token }}'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        }
+    });
+}
+</script>
+
+{% endblock %}

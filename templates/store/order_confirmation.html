@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Order Confirmation - Jewelry Store{% endblock %}
+
+{% block content %}
+
+<div class="container py-5">
+    <!-- Success Message -->
+    <div style="text-align: center; margin-bottom: 3rem;">
+        <div style="width: 80px; height: 80px; margin: 0 auto 1rem; background: rgba(39, 174, 96, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+            <i class="fas fa-check-circle" style="font-size: 3rem; color: var(--success);"></i>
+        </div>
+        <h1 style="margin-bottom: 0.5rem;">Order Confirmed!</h1>
+        <p class="text-muted" style="font-size: 1.1rem;">Thank you for your purchase</p>
+    </div>
+    
+    <!-- Order Details Card -->
+    <div style="max-width: 800px; margin: 0 auto;">
+        <div style="background: var(--white); padding: 3rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 2rem;">
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+                <div>
+                    <p style="color: var(--text-light); margin: 0 0 0.5rem;"><small>ORDER NUMBER</small></p>
+                    <h4 style="margin: 0; color: var(--dark-color);">{{ order.order_number }}</h4>
+                </div>
+                <div>
+                    <p style="color: var(--text-light); margin: 0 0 0.5rem;"><small>ORDER DATE</small></p>
+                    <h4 style="margin: 0; color: var(--dark-color);">{{ order.created_at|date:"M d, Y" }}</h4>
+                </div>
+                <div>
+                    <p style="color: var(--text-light); margin: 0 0 0.5rem;"><small>ORDER TOTAL</small></p>
+                    <h4 style="margin: 0; color: var(--primary-color);">₹{{ order.total_price|floatformat:0 }}</h4>
+                </div>
+                <div>
+                    <p style="color: var(--text-light); margin: 0 0 0.5rem;"><small>ORDER STATUS</small></p>
+                    <h4 style="margin: 0; color: var(--dark-color); text-transform: capitalize;">{{ order.get_status_display }}</h4>
+                </div>
+            </div>
+            
+            <hr style="border: none; border-top: 1px solid var(--border-color); margin: 2rem 0;">
+            
+            <!-- Order Items -->
+            <h3 style="margin-bottom: 1.5rem;">Order Items</h3>
+            <div style="margin-bottom: 2rem;">
+                {% for item in order.items.all %}
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; border-bottom: 1px solid var(--border-color);">
+                        <div>
+                            <p style="margin: 0; color: var(--dark-color); font-weight: 500;">{{ item.product.name }}</p>
+                            <small style="color: var(--text-light);">Qty: {{ item.quantity }}</small>
+                        </div>
+                        <p style="margin: 0; font-weight: 600; color: var(--dark-color);">₹{{ item.get_subtotal|floatformat:0 }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+            
+            <hr style="border: none; border-top: 1px solid var(--border-color); margin: 2rem 0;">
+            
+            <!-- Shipping Information -->
+            <h3 style="margin-bottom: 1.5rem;">Shipping Information</h3>
+            <div style="background: var(--light-color); padding: 1.5rem; border-radius: 4px; margin-bottom: 2rem;">
+                <p style="margin: 0 0 0.5rem;">
+                    <strong>{{ order.first_name }} {{ order.last_name }}</strong>
+                </p>
+                <p style="margin: 0 0 0.5rem;">{{ order.address }}</p>
+                <p style="margin: 0 0 0.5rem;">{{ order.city }}, {{ order.state }} {{ order.postal_code }}</p>
+                <p style="margin: 0;">{{ order.country }}</p>
+                <p style="margin: 1rem 0 0; color: var(--text-light);">
+                    <i class="fas fa-phone"></i> {{ order.phone }}
+                </p>
+            </div>
+            
+            <!-- Order Summary -->
+            <h3 style="margin-bottom: 1.5rem;">Order Summary</h3>
+            <div style="background: var(--light-color); padding: 1.5rem; border-radius: 4px;">
+                <div class="justify-between" style="margin-bottom: 0.75rem;">
+                    <span>Subtotal:</span>
+                    <span>₹{{ order.total_price|floatformat:0 }}</span>
+                </div>
+                <div class="justify-between" style="margin-bottom: 0.75rem;">
+                    <span>Shipping:</span>
+                    <span style="color: var(--success);">Free</span>
+                </div>
+                <div class="justify-between" style="margin-bottom: 1rem;">
+                    <span>Tax (8%):</span>
+                    <span>₹{{ tax_amount|floatformat:0 }}</span>
+                </div>
+                <hr style="border: none; border-top: 1px solid var(--border-color); margin: 1rem 0;">
+                <div class="justify-between">
+                    <strong>Total:</strong>
+                    <strong style="color: var(--primary-color); font-size: 1.1rem;">₹{{ order.total_price|floatformat:0 }}</strong>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Payment Status -->
+        <div style="background: rgba(52, 152, 219, 0.1); padding: 2rem; border-radius: 8px; border-left: 4px solid var(--info); margin-bottom: 2rem;">
+            <h4 style="margin: 0 0 0.5rem; color: var(--dark-color);">
+                <i class="fas fa-info-circle" style="margin-right: 0.5rem;"></i>Payment Status
+            </h4>
+            <p style="margin: 0; color: var(--info);">
+                {% if order.payment_method == 'cod' %}
+                    Payment method: Cash on Delivery - Pay when your order arrives
+                {% elif order.payment_method == 'stripe' %}
+                    Payment method: Credit/Debit Card (Stripe)
+                    {% if order.paid %}
+                        <span style="color: var(--success); display: block; margin-top: 0.5rem;">
+                            <i class="fas fa-check-circle"></i> Payment received
+                        </span>
+                    {% else %}
+                        <span style="color: var(--warning); display: block; margin-top: 0.5rem;">
+                            <i class="fas fa-clock"></i> Awaiting payment
+                        </span>
+                    {% endif %}
+                {% endif %}
+            </p>
+        </div>
+        
+        <!-- Next Steps -->
+        <div style="background: var(--light-color); padding: 2rem; border-radius: 8px; margin-bottom: 2rem;">
+            <h4 style="margin-bottom: 1rem;">What's Next?</h4>
+            <ul style="margin: 0; padding-left: 1.5rem; color: var(--text-light);">
+                <li style="margin-bottom: 0.5rem;">You'll receive a confirmation email shortly</li>
+                <li style="margin-bottom: 0.5rem;">Your order is being prepared for shipment</li>
+                <li style="margin-bottom: 0.5rem;">You'll receive tracking information once it ships</li>
+                <li>Estimated delivery: 5-7 business days</li>
+            </ul>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <a href="{% url 'user_orders' %}" class="btn btn-primary btn-lg">
+                <i class="fas fa-list"></i> View My Orders
+            </a>
+            <a href="{% url 'shop' %}" class="btn btn-outline btn-lg">
+                <i class="fas fa-shopping-bag"></i> Continue Shopping
+            </a>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 400">
+  <defs>
+    <linearGradient id="serumGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffb6c1;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#ffc0cb;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ffb6c1;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="bottleGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.9" />
+      <stop offset="100%" style="stop-color:#e0f0ff;stop-opacity:0.8" />
+    </linearGradient>
+    <filter id="shadow"><feDropShadow dx="2" dy="2" stdDeviation="3" flood-opacity="0.3"/></filter>
+  </defs>
+  <rect width="300" height="400" fill="#f5f5f5"/>
+  <g filter="url(#shadow)">
+    <path d="M 130 170 L 125 190 Q 125 210 135 220 L 165 220 Q 175 210 175 190 L 170 170 Z" fill="url(#bottleGradient)" stroke="#d4af37" stroke-width="2"/>
+    <rect x="128" y="140" width="44" height="30" fill="url(#serumGradient)" rx="3"/>
+    <circle cx="150" cy="100" r="15" fill="url(#serumGradient)" stroke="#ffb6c1" stroke-width="1"/>
+    <circle cx="150" cy="100" r="12" fill="#ffe4e1" opacity="0.6"/>
+    <circle cx="147" cy="95" r="3" fill="#ffffff" opacity="0.7"/>
+  </g>
+  <text x="150" y="300" font-family="Arial, sans-serif" font-size="18" font-weight="bold" text-anchor="middle" fill="#1a1a1a">Luxury Face Serum</text>
+  <text x="150" y="330" font-family="Arial, sans-serif" font-size="14" text-anchor="middle" fill="#666">Premium Formula</text>
+  <text x="150" y="360" font-family="Arial, sans-serif" font-size="16" font-weight="bold" text-anchor="middle" fill="#d4af37">$129</text>
+</svg>

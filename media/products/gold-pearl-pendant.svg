@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 400">
+  <defs>
+    <linearGradient id="silverGradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#e8e8e8;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#c0c0c0;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#a8a8a8;stop-opacity:1" />
+    </linearGradient>
+    <filter id="shadow"><feDropShadow dx="2" dy="2" stdDeviation="3" flood-opacity="0.3"/></filter>
+  </defs>
+  <rect width="300" height="400" fill="#f5f5f5"/>
+  <g filter="url(#shadow)">
+    <path d="M 80 100 Q 115 80 150 85 Q 185 80 220 100" stroke="url(#silverGradient1)" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <circle cx="115" cy="140" r="14" fill="#fffacd" stroke="#daa520" stroke-width="1"/>
+    <circle cx="115" cy="140" r="12" fill="#ffffe0" opacity="0.7"/>
+    <circle cx="150" cy="150" r="16" fill="#fffacd" stroke="#daa520" stroke-width="1"/>
+    <circle cx="150" cy="150" r="14" fill="#ffffe0" opacity="0.7"/>
+    <circle cx="185" cy="140" r="14" fill="#fffacd" stroke="#daa520" stroke-width="1"/>
+    <circle cx="185" cy="140" r="12" fill="#ffffe0" opacity="0.7"/>
+  </g>
+  <text x="150" y="300" font-family="Arial, sans-serif" font-size="18" font-weight="bold" text-anchor="middle" fill="#1a1a1a">Gold Pearl Pendant</text>
+  <text x="150" y="330" font-family="Arial, sans-serif" font-size="14" text-anchor="middle" fill="#666">Silver Chain</text>
+  <text x="150" y="360" font-family="Arial, sans-serif" font-size="16" font-weight="bold" text-anchor="middle" fill="#d4af37">$899</text>
+</svg>

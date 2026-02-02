@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ category.name }} - Jewelry Store{% endblock %}
+
+{% block content %}
+
+<div class="page-banner">
+    <div class="page-banner-content">
+        <h1>{{ category.name }}</h1>
+        {% if category.description %}
+            <p>{{ category.description }}</p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="container py-4">
+    {% if products %}
+        <div class="product-grid">
+            {% for product in products %}
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="{% if product.image %}{{ product.image.url }}{% else %}{% static 'images/placeholder.svg' %}{% endif %}" 
+                             alt="{{ product.name }}" 
+                             loading="lazy">
+                        {% if product.get_discount_percentage > 0 %}
+                            <div class="product-badge">-{{ product.get_discount_percentage }}%</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="product-info">
+                        <p class="product-category">{{ product.category.name }}</p>
+                        <h5 class="product-name">{{ product.name }}</h5>
+                        
+                        <div class="product-rating">
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= product.average_rating %}
+                                    <span class="star">★</span>
+                                {% else %}
+                                    <span class="star empty">★</span>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        
+                        <div class="product-price">
+                            {% if product.original_price %}
+                                <span class="original">₹{{ product.original_price|floatformat:0 }}</span>
+                            {% endif %}
+                            ₹{{ product.price|floatformat:0 }}
+                        </div>
+                        
+                        <div class="product-actions">
+                            {% if user.is_authenticated %}
+                                <form method="POST" action="{% url 'add_to_cart' product.id %}" style="width: 100%;">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="quantity" value="1">
+                                    <button type="submit" class="btn btn-primary btn-sm" style="width: 100%;">
+                                        <i class="fas fa-shopping-bag"></i> Add to Cart
+                                    </button>
+                                </form>
+                            {% else %}
+                                <a href="{% url 'login' %}" class="btn btn-primary btn-sm" style="width: 100%;">
+                                    <i class="fas fa-sign-in-alt"></i> Login to Buy
+                                </a>
+                            {% endif %}
+                            <a href="{% url 'product_detail' product.slug %}" class="btn btn-outline btn-sm">
+                                <i class="fas fa-eye"></i> View
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Pagination -->
+        {% if products.has_other_pages %}
+            <div class="pagination mt-4">
+                {% if products.has_previous %}
+                    <a href="?page=1">First</a>
+                    <a href="?page={{ products.previous_page_number }}">Previous</a>
+                {% endif %}
+                
+                {% for num in products.paginator.page_range %}
+                    {% if products.number == num %}
+                        <span class="current">{{ num }}</span>
+                    {% elif num > products.number|add:'-3' and num < products.number|add:'3' %}
+                        <a href="?page={{ num }}">{{ num }}</a>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if products.has_next %}
+                    <a href="?page={{ products.next_page_number }}">Next</a>
+                    <a href="?page={{ products.paginator.num_pages }}">Last</a>
+                {% endif %}
+            </div>
+        {% endif %}
+    {% else %}
+        <div style="text-align: center; padding: 4rem 2rem;">
+            <i class="fas fa-inbox" style="font-size: 4rem; color: var(--border-color); margin-bottom: 1rem; display: block;"></i>
+            <h3>No products in this category</h3>
+            <p class="text-muted">Check back soon for new items!</p>
+            <a href="{% url 'shop' %}" class="btn btn-primary mt-2">View All Products</a>
+        </div>
+    {% endif %}
+</div>
+
+{% endblock %}

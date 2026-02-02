@@ -1,0 +1,211 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block title %}Checkout - Jewelry Store{% endblock %}
+
+{% block content %}
+
+<div style="background: var(--light-color); padding: 2rem 0; margin-bottom: 2rem;">
+    <div class="container">
+        <h1>Checkout</h1>
+    </div>
+</div>
+
+<div class="container py-4">
+    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
+        
+        <!-- CHECKOUT FORM -->
+        <div>
+            <form method="POST" style="background: var(--white); padding: 2rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                {% csrf_token %}
+                
+                <!-- Shipping Information -->
+                <h3 style="margin-bottom: 1.5rem;">Shipping Information</h3>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label class="form-label">First Name *</label>
+                        {{ form.first_name }}
+                        {% if form.first_name.errors %}
+                            <div class="form-error">{{ form.first_name.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Last Name *</label>
+                        {{ form.last_name }}
+                        {% if form.last_name.errors %}
+                            <div class="form-error">{{ form.last_name.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Email Address *</label>
+                    {{ form.email }}
+                    {% if form.email.errors %}
+                        <div class="form-error">{{ form.email.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Phone Number *</label>
+                    {{ form.phone }}
+                    {% if form.phone.errors %}
+                        <div class="form-error">{{ form.phone.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Street Address *</label>
+                    {{ form.address }}
+                    {% if form.address.errors %}
+                        <div class="form-error">{{ form.address.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label class="form-label">City *</label>
+                        {{ form.city }}
+                        {% if form.city.errors %}
+                            <div class="form-error">{{ form.city.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">State/Province *</label>
+                        {{ form.state }}
+                        {% if form.state.errors %}
+                            <div class="form-error">{{ form.state.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label class="form-label">Postal Code *</label>
+                        {{ form.postal_code }}
+                        {% if form.postal_code.errors %}
+                            <div class="form-error">{{ form.postal_code.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Country *</label>
+                        {{ form.country }}
+                        {% if form.country.errors %}
+                            <div class="form-error">{{ form.country.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Payment Method -->
+                <h3 style="margin: 2rem 0 1.5rem;">Payment Method</h3>
+                
+                <div style="background: var(--light-color); padding: 1.5rem; border-radius: 8px;">
+                    {% for value, label in form.payment_method.field.choices %}
+                        <label style="display: flex; align-items: center; gap: 1rem; padding: 1rem; cursor: pointer; border: 2px solid transparent; border-radius: 4px; transition: all 0.3s;">
+                            <input type="radio" name="payment_method" value="{{ value }}" required style="width: 20px; height: 20px; cursor: pointer;">
+                            <div>
+                                <strong style="color: var(--dark-color); display: block;">{{ label }}</strong>
+                                {% if value == 'cod' %}
+                                    <small style="color: var(--text-light);">Pay when your order arrives</small>
+                                {% elif value == 'stripe' %}
+                                    <small style="color: var(--text-light);">Pay securely with credit/debit card</small>
+                                {% endif %}
+                            </div>
+                        </label>
+                    {% endfor %}
+                </div>
+                
+                {% if form.payment_method.errors %}
+                    <div class="form-error">{{ form.payment_method.errors.0 }}</div>
+                {% endif %}
+                
+                <!-- Terms -->
+                <label class="form-check" style="margin-top: 2rem;">
+                    <input type="checkbox" class="form-check-input" required>
+                    <span class="form-check-label">
+                        I agree to the <a href="#">Terms & Conditions</a> and <a href="#">Privacy Policy</a>
+                    </span>
+                </label>
+                
+                <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-top: 2rem;">
+                    <i class="fas fa-credit-card"></i> Place Order
+                </button>
+            </form>
+        </div>
+        
+        <!-- ORDER SUMMARY -->
+        <div>
+            <div style="background: var(--light-color); padding: 2rem; border-radius: 8px; position: sticky; top: 100px;">
+                <h3 style="margin-bottom: 1.5rem;">Order Summary</h3>
+                
+                <!-- Items -->
+                <div style="margin-bottom: 1.5rem; max-height: 300px; overflow-y: auto;">
+                    {% for item in cart_items %}
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0; border-bottom: 1px solid var(--border-color);">
+                            <div>
+                                <p style="margin: 0; color: var(--dark-color); font-weight: 500;">{{ item.product.name }}</p>
+                                <small style="color: var(--text-light);">Qty: {{ item.quantity }}</small>
+                            </div>
+                            <p style="margin: 0; font-weight: 600; color: var(--dark-color);">₹{{ item.get_subtotal|floatformat:0 }}</p>
+                        </div>
+                    {% endfor %}
+                </div>
+                
+                <!-- Totals -->
+                <hr style="margin: 1rem 0; border: none; border-top: 2px solid var(--border-color);">
+                
+                <div class="justify-between" style="margin-bottom: 0.75rem;">
+                    <span>Subtotal:</span>
+                    <span>₹{{ cart_total|floatformat:0 }}</span>
+                </div>
+                
+                <div class="justify-between" style="margin-bottom: 0.75rem;">
+                    <span>Shipping:</span>
+                    <span style="color: var(--success);">Free</span>
+                </div>
+                
+                <div class="justify-between" style="margin-bottom: 1rem;">
+                    <span>Tax (8%):</span>
+                    <span>₹{{ tax_amount|floatformat:0 }}</span>
+                </div>
+                
+                <hr style="margin: 1rem 0; border: none; border-top: 2px solid var(--border-color);">
+                
+                <div class="justify-between" style="margin-bottom: 1.5rem;">
+                    <h5 style="margin: 0;">Total:</h5>
+                    <h5 style="margin: 0; color: var(--primary-color);">
+                        ₹{{ final_total|floatformat:0 }}
+                    </h5>
+                </div>
+                
+                <!-- Security Info -->
+                <div style="background: rgba(39, 174, 96, 0.1); padding: 1rem; border-radius: 4px; border-left: 4px solid var(--success);">
+                    <p style="margin: 0; font-size: 0.85rem; color: var(--text-dark);">
+                        <i class="fas fa-lock" style="margin-right: 0.5rem; color: var(--success);"></i>
+                        Your payment information is secure and encrypted.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- RESPONSIVE STYLES -->
+<style>
+    @media (max-width: 768px) {
+        div[style*="grid-template-columns: 2fr 1fr"] {
+            grid-template-columns: 1fr !important;
+        }
+        
+        div[style*="position: sticky"] {
+            position: static !important;
+        }
+    }
+</style>
+
+{% endblock %}

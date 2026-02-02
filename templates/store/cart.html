@@ -1,0 +1,171 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Shopping Cart - Jewelry Store{% endblock %}
+
+{% block content %}
+
+<div style="background: var(--light-color); padding: 2rem 0; margin-bottom: 2rem;">
+    <div class="container">
+        <h1>Shopping Cart</h1>
+    </div>
+</div>
+
+<div class="container py-4">
+    {% if user.is_authenticated %}
+        {% if cart_items %}
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
+                
+                <!-- CART ITEMS -->
+                <div>
+                    <div style="background: var(--white); border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                        <table class="cart-table">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Price</th>
+                                    <th>Quantity</th>
+                                    <th>Subtotal</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in cart_items %}
+                                    <tr>
+                                        <td>
+                                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                                <img src="{% if item.product.image %}{{ item.product.image.url }}{% else %}{% static 'images/placeholder.svg' %}{% endif %}" 
+                                                     alt="{{ item.product.name }}" 
+                                                     class="cart-item-image">
+                                                <div>
+                                                    <h6 style="color: var(--dark-color); margin: 0;">{{ item.product.name }}</h6>
+                                                    <p style="font-size: 0.85rem; color: var(--text-light); margin: 0;">{{ item.product.category.name }}</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>₹{{ item.product.price|floatformat:0 }}</td>
+                                        <td>
+                                            <form method="POST" action="{% url 'update_cart' item.id %}" style="display: flex; gap: 0.5rem;">
+                                                {% csrf_token %}
+                                                <input type="number" name="quantity" value="{{ item.quantity }}" min="1" class="quantity-input">
+                                                <button type="submit" class="btn btn-sm btn-primary">Update</button>
+                                            </form>
+                                        </td>
+                                        <td>₹{{ item.get_subtotal|floatformat:0 }}</td>
+                                        <td>
+                                            <form method="POST" action="{% url 'remove_from_cart' item.id %}" style="margin: 0;">
+                                                {% csrf_token %}
+                                                <button type="submit" class="remove-btn">
+                                                    <i class="fas fa-trash"></i> Remove
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- CART SUMMARY -->
+                <div>
+                    <div style="background: var(--light-color); padding: 2rem; border-radius: 8px;">
+                        <h3 style="margin-bottom: 1.5rem;">Order Summary</h3>
+                        
+                        <div style="margin-bottom: 1rem;">
+                            <div class="justify-between" style="margin-bottom: 0.75rem;">
+                                <span>Subtotal:</span>
+                                <span>₹{{ subtotal|floatformat:0 }}</span>
+                            </div>
+                            
+                            <div class="justify-between" style="margin-bottom: 0.75rem;">
+                                <span>Shipping:</span>
+                                <span>Free</span>
+                            </div>
+                            
+                            <div class="justify-between" style="margin-bottom: 0.75rem;">
+                                <span>Tax (10%):</span>
+                                <span>₹{{ tax_amount|floatformat:0 }}</span>
+                            </div>
+                        </div>
+                        
+                        <hr style="margin: 1rem 0; border: none; border-top: 2px solid var(--border-color);">
+                        
+                        <div class="justify-between" style="margin-bottom: 2rem;">
+                            <h5 style="margin: 0;">Total:</h5>
+                            <h5 style="margin: 0; color: var(--primary-color);">₹{{ cart_total|floatformat:0 }}</h5>
+                        </div>
+                        
+                        <a href="{% url 'checkout' %}" class="btn btn-primary btn-block btn-lg">
+                            <i class="fas fa-lock"></i> Proceed to Checkout
+                        </a>
+                        
+                        <a href="{% url 'shop' %}" class="btn btn-outline btn-block" style="margin-top: 0.75rem;">
+                            <i class="fas fa-arrow-left"></i> Continue Shopping
+                        </a>
+                    </div>
+                    
+                    <!-- Discount Code -->
+                    <div style="background: var(--white); padding: 2rem; border-radius: 8px; margin-top: 1rem;">
+                        <h5 style="margin-bottom: 1rem;">Promo Code</h5>
+                        <form>
+                            <div class="form-group" style="margin: 0;">
+                                <input type="text" class="form-control" placeholder="Enter promo code" value="LUXURY20">
+                            </div>
+                            <button type="submit" class="btn btn-dark btn-block">Apply Code</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <!-- EMPTY CART -->
+            <div style="text-align: center; padding: 4rem 2rem;">
+                <i class="fas fa-shopping-bag" style="font-size: 4rem; color: var(--border-color); margin-bottom: 1rem; display: block; opacity: 0.5;"></i>
+                <h2>Your cart is empty</h2>
+                <p class="text-muted mb-3">Looks like you haven't added any items yet.</p>
+                <a href="{% url 'shop' %}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-shopping-bag"></i> Start Shopping
+                </a>
+            </div>
+        {% endif %}
+    {% else %}
+        <!-- NOT LOGGED IN -->
+        <div style="text-align: center; padding: 4rem 2rem;">
+            <i class="fas fa-lock" style="font-size: 4rem; color: var(--border-color); margin-bottom: 1rem; display: block; opacity: 0.5;"></i>
+            <h2>Please login to view your cart</h2>
+            <p class="text-muted mb-3">You need to be logged in to add items to your cart.</p>
+            <div style="display: flex; gap: 1rem; justify-content: center;">
+                <a href="{% url 'login' %}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </a>
+                <a href="{% url 'register' %}" class="btn btn-outline btn-lg">
+                    <i class="fas fa-user-plus"></i> Register
+                </a>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<!-- FILTER MULTIPLY FOR CALCULATION (Django template workaround) -->
+{% comment %}
+Using cart_total directly from context instead of calculating in template
+{% endcomment %}
+
+<!-- RESPONSIVE STYLES -->
+<style>
+    @media (max-width: 768px) {
+        div[style*="grid-template-columns: 2fr 1fr"] {
+            grid-template-columns: 1fr !important;
+        }
+        
+        .cart-table {
+            font-size: 0.85rem;
+        }
+        
+        .cart-table th, .cart-table td {
+            padding: 0.5rem;
+        }
+    }
+</style>
+
+{% endblock %}

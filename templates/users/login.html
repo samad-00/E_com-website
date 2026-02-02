@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Login - Jewelry Store{% endblock %}
+
+{% block content %}
+
+<div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--light-color) 0%, rgba(212, 175, 55, 0.05) 100%); padding: 2rem;">
+    <div style="width: 100%; max-width: 450px;">
+        
+        <!-- Form Container -->
+        <div style="background: var(--white); padding: 3rem; border-radius: 8px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);">
+            
+            <!-- Header -->
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <h1 style="margin-bottom: 0.5rem;">Welcome Back</h1>
+                <p class="text-muted">Sign in to your Luxura account</p>
+            </div>
+            
+            <!-- Login Form -->
+            <form method="POST">
+                {% csrf_token %}
+                
+                <!-- Username/Email -->
+                <div class="form-group">
+                    <label class="form-label">Username or Email</label>
+                    {{ form.username }}
+                    {% if form.username.errors %}
+                        <div class="form-error">{{ form.username.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                
+                <!-- Password -->
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    {{ form.password }}
+                    {% if form.password.errors %}
+                        <div class="form-error">{{ form.password.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                
+                <!-- Remember Me -->
+                <label class="form-check">
+                    {{ form.remember_me }}
+                    <span class="form-check-label">Remember me</span>
+                </label>
+                
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-top: 1.5rem;">
+                    <i class="fas fa-sign-in-alt"></i> Sign In
+                </button>
+            </form>
+            
+            <!-- Divider -->
+            <div style="display: flex; align-items: center; gap: 1rem; margin: 2rem 0;">
+                <hr style="flex: 1; border: none; border-top: 1px solid var(--border-color);">
+                <span style="color: var(--text-light); font-size: 0.9rem;">or</span>
+                <hr style="flex: 1; border: none; border-top: 1px solid var(--border-color);">
+            </div>
+            
+            <!-- Register Link -->
+            <div style="text-align: center;">
+                <p style="margin: 0; color: var(--text-light);">
+                    Don't have an account? 
+                    <a href="{% url 'register' %}" style="color: var(--primary-color); font-weight: 600;">Create one</a>
+                </p>
+            </div>
+            
+            <!-- Help Links -->
+            <div style="text-align: center; margin-top: 1.5rem; display: flex; gap: 1rem; justify-content: center; font-size: 0.9rem;">
+                <a href="#" style="color: var(--text-light);">Forgot Password?</a>
+                <span style="color: var(--border-color);">|</span>
+                <a href="{% url 'home' %}" style="color: var(--text-light);">Back to Home</a>
+            </div>
+        </div>
+        
+        <!-- Security Message -->
+        <div style="text-align: center; margin-top: 2rem; color: var(--text-light); font-size: 0.85rem;">
+            <i class="fas fa-shield-alt" style="color: var(--primary-color); margin-right: 0.5rem;"></i>
+            Your login is secure and encrypted
+        </div>
+    </div>
+</div>
+
+{% endblock %}
