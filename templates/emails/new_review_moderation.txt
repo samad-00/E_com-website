@@ -1,0 +1,9 @@
+A new review was submitted and requires moderation.
+
+Product: {{ review.product.name }}
+User: {{ review.user.username }}
+Rating: {{ review.rating }}
+Comment:
+{{ review.comment }}
+
+Approve it in the admin panel to make it visible on the site.

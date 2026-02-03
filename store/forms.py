@@ -39,6 +39,7 @@ class ReviewForm(forms.ModelForm):
 # ===========================
 class CheckoutForm(forms.ModelForm):
     """Form for checkout and order placement."""
+    coupon_code = forms.CharField(required=False, label='Coupon Code', widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter coupon code (optional)'}))
     
     class Meta:
         model = Order

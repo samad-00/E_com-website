@@ -1,0 +1,6 @@
+Thanks for contacting us.
+
+We received your message:
+Subject: {{ contact.subject }}
+
+We'll get back to you shortly.

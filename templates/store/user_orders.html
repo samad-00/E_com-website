@@ -71,11 +71,15 @@
                     </div>
                     
                     <!-- Action Buttons -->
-                    <div style="display: flex; gap: 1rem;">
+                    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
                         <a href="{% url 'order_confirmation' order.id %}" class="btn btn-primary btn-sm">
                             <i class="fas fa-eye"></i> View Details
                         </a>
-                        {% if order.status != 'delivered' %}
+                        {% if order.can_be_cancelled %}
+                            <a href="{% url 'cancel_order' order.id %}" class="btn btn-danger btn-sm" style="background-color: #dc3545; border-color: #dc3545;">
+                                <i class="fas fa-times"></i> Cancel Order
+                            </a>
+                        {% elif order.status != 'delivered' %}
                             <button class="btn btn-outline btn-sm">
                                 <i class="fas fa-map-pin"></i> Track Order
                             </button>

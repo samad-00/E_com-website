@@ -1,0 +1,5 @@
+Low stock alert for product: {{ product.name }}
+
+Current stock: {{ current_stock }}
+
+Please restock as soon as possible.

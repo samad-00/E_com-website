@@ -1,10 +1,9 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from django.views import View
-from django.views.generic import ListView, DetailView
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
-from django.db.models import Q, Avg
+from django.db.models import Q, Avg, Sum
+from django.contrib.admin.views.decorators import staff_member_required
 from django.core.paginator import Paginator
 from django.utils import timezone
 from datetime import timedelta
@@ -15,9 +14,11 @@ import string
 
 from .models import (
     Category, Product, Review, CartItem, 
-    Order, OrderItem, Wishlist, UserProfile, ContactQuery
+    Order, OrderItem, Wishlist, UserProfile, ContactQuery, Coupon
 )
 from .forms import ReviewForm, CheckoutForm, ContactQueryForm
+from .email_utils import send_order_confirmation_email, send_contact_receipt_email, notify_admin_new_contact
+from .sms_utils import send_sms
 
 
 # ===========================
@@ -103,7 +104,7 @@ def shop(request):
 def product_detail(request, slug):
     """Product detail page with reviews and related products."""
     product = get_object_or_404(Product, slug=slug)
-    reviews = product.reviews.all()
+    reviews = product.reviews.filter(approved=True)
     avg_rating = reviews.aggregate(Avg('rating'))['rating__avg'] or 0
     
     # Related products from same category
@@ -128,7 +129,18 @@ def product_detail(request, slug):
             review = review_form.save(commit=False)
             review.product = product
             review.user = request.user
+            review.approved = False
             review.save()
+            # Notify moderator
+            try:
+                from .email_utils import notify_moderator_review
+                from django.conf import settings as _settings
+                admin_email = getattr(_settings, 'DEFAULT_FROM_EMAIL', None)
+                if admin_email:
+                    notify_moderator_review(review, admin_email)
+            except Exception:
+                pass
+            messages.info(request, 'Thank you — your review has been submitted for moderation.')
             return redirect('product_detail', slug=slug)
     
     context = {
@@ -282,13 +294,34 @@ def checkout(request):
     if request.method == 'POST':
         form = CheckoutForm(request.POST)
         if form.is_valid():
-            # Create order
+            # Create order (set payment_method later when creating checkout session)
             order = form.save(commit=False)
             order.user = request.user
             order.order_number = generate_order_number()
-            order.total_price = cart_total
+            # Apply coupon if provided
+            coupon_code = form.cleaned_data.get('coupon_code')
+            discount_amount = 0
+            if coupon_code:
+                try:
+                    coupon = Coupon.objects.get(code__iexact=coupon_code)
+                    if coupon.is_valid() and (not coupon.min_order_amount or cart_total >= coupon.min_order_amount):
+                        discount_amount = (cart_total * (coupon.discount_percent / Decimal('100'))).quantize(Decimal('0.01'))
+                        # increment usage count
+                        coupon.used_count = coupon.used_count + 1
+                        coupon.save()
+                    else:
+                        messages.warning(request, 'Coupon is invalid or has expired.')
+                except Coupon.DoesNotExist:
+                    messages.warning(request, 'Coupon code not found.')
+
+            order.total_price = (cart_total - discount_amount)
+            order.payment_method = 'stripe'
+            # store selected currency on order
+            from django.conf import settings as _settings
+            selected_currency = request.session.get('currency', getattr(_settings, 'BASE_CURRENCY', 'USD'))
+            order.currency = selected_currency
             order.save()
-            
+
             # Create order items
             for item in cart_items:
                 OrderItem.objects.create(
@@ -297,11 +330,12 @@ def checkout(request):
                     quantity=item.quantity,
                     price=item.product.price
                 )
-            
+
             # Clear cart
             cart_items.delete()
-            
-            return redirect('order_confirmation', order_id=order.id)
+
+            # Redirect to payments create-checkout-session
+            return redirect('payments:create_checkout_session', order_id=order.id)
     
     context = {
         'cart_items': cart_items,
@@ -353,6 +387,49 @@ def user_orders(request):
         'page_title': 'My Orders',
     }
     return render(request, 'store/user_orders.html', context)
+
+
+# ===========================
+# ANALYTICS DASHBOARD
+# ===========================
+@staff_member_required
+def analytics_dashboard(request):
+    """Simple analytics dashboard for staff: last 30 days sales, orders, top products."""
+    today = timezone.now().date()
+    start_date = today - timedelta(days=29)
+
+    # Orders in the last 30 days
+    recent_orders = Order.objects.filter(created_at__date__gte=start_date)
+    total_sales = recent_orders.aggregate(total=Sum('total_price'))['total'] or Decimal('0.00')
+    orders_count = recent_orders.count()
+
+    # Daily sales series
+    daily_labels = []
+    daily_values = []
+    for i in range(30):
+        day = start_date + timedelta(days=i)
+        day_total = Order.objects.filter(created_at__date=day).aggregate(total=Sum('total_price'))['total'] or Decimal('0.00')
+        daily_labels.append(day.strftime('%Y-%m-%d'))
+        daily_values.append(float(day_total))
+
+    # Top products by revenue
+    top_products_qs = (
+        OrderItem.objects
+        .values('product__id', 'product__name')
+        .annotate(total_qty=Sum('quantity'), revenue=Sum('price'))
+        .order_by('-revenue')[:5]
+    )
+    top_products = list(top_products_qs)
+
+    context = {
+        'total_sales': total_sales,
+        'orders_count': orders_count,
+        'daily_labels': json.dumps(daily_labels),
+        'daily_values': json.dumps(daily_values),
+        'top_products': top_products,
+        'page_title': 'Analytics - Admin',
+    }
+    return render(request, 'store/analytics.html', context)
 
 
 # ===========================
@@ -471,6 +548,15 @@ def contact_query(request):
             if request.user.is_authenticated:
                 contact.email = request.user.email
             contact.save()
+            # Send receipt to user and notify admin
+            try:
+                send_contact_receipt_email(contact)
+                from django.conf import settings as _settings
+                admin_email = getattr(_settings, 'DEFAULT_FROM_EMAIL', None)
+                if admin_email:
+                    notify_admin_new_contact(contact, admin_email)
+            except Exception:
+                pass
             messages.success(request, 'Thank you! Your query has been submitted. We will respond shortly.')
             return redirect('contact_thank_you')
     else:
@@ -492,3 +578,46 @@ def contact_thank_you(request):
     return render(request, 'store/contact_thank_you.html', {
         'page_title': 'Thank You - KIRAA',
     })
+
+
+# ===========================
+# CANCEL ORDER
+# ===========================
+@login_required(login_url='login')
+def cancel_order(request, order_id):
+    """Cancel an order if possible."""
+    order = get_object_or_404(Order, id=order_id)
+    
+    # Check permission - user can only cancel their own orders
+    if order.user != request.user and not request.user.is_staff:
+        messages.error(request, 'You do not have permission to cancel this order.')
+        return redirect('user_orders')
+    
+    # Check if order can be cancelled
+    if not order.can_be_cancelled():
+        messages.error(request, f'This order cannot be cancelled. Current status: {order.get_status_display()}')
+        return redirect('user_orders')
+    
+    # Handle POST request (actual cancellation)
+    if request.method == 'POST':
+        if order.cancel():
+            messages.success(request, f'Order #{order.order_number} has been cancelled successfully.')
+            
+            # Send cancellation email
+            try:
+                from .email_utils import send_order_cancellation_email
+                send_order_cancellation_email(order)
+            except Exception:
+                pass
+            
+            return redirect('user_orders')
+        else:
+            messages.error(request, 'Failed to cancel order. Please try again.')
+            return redirect('order_confirmation', order_id=order.id)
+    
+    # GET request - show confirmation page
+    context = {
+        'order': order,
+        'page_title': f'Cancel Order - {order.order_number}',
+    }
+    return render(request, 'store/cancel_order.html', context)

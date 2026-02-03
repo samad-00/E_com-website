@@ -74,6 +74,7 @@ class Review(models.Model):
         default=5
     )
     comment = models.TextField()
+    approved = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -82,6 +83,35 @@ class Review(models.Model):
 
     def __str__(self):
         return f'{self.product.name} - {self.rating} stars'
+
+
+class Coupon(models.Model):
+    """Coupon codes for discounts applied to orders."""
+    code = models.CharField(max_length=50, unique=True)
+    description = models.CharField(max_length=200, blank=True)
+    discount_percent = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    active = models.BooleanField(default=True)
+    usage_limit = models.IntegerField(null=True, blank=True)
+    used_count = models.IntegerField(default=0)
+    min_order_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    expiry_date = models.DateField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-id']
+
+    def __str__(self):
+        return self.code
+
+    def is_valid(self):
+        from django.utils import timezone
+        today = timezone.now().date()
+        if not self.active:
+            return False
+        if self.expiry_date and self.expiry_date < today:
+            return False
+        if self.usage_limit and self.used_count >= self.usage_limit:
+            return False
+        return True
 
 
 # ===========================
@@ -139,6 +169,7 @@ class Order(models.Model):
 
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='orders')
     order_number = models.CharField(max_length=50, unique=True)
+    currency = models.CharField(max_length=10, default='USD')
     
     # Shipping Information
     first_name = models.CharField(max_length=100)
@@ -169,6 +200,27 @@ class Order(models.Model):
 
     def __str__(self):
         return f'Order #{self.order_number}'
+    
+    def can_be_cancelled(self):
+        """Check if order can be cancelled"""
+        # Can only cancel pending or confirmed orders
+        return self.status in ['pending', 'confirmed']
+    
+    def cancel(self):
+        """Cancel the order and restore product stock"""
+        if not self.can_be_cancelled():
+            return False
+        
+        # Restore stock for all items in order
+        for item in self.items.all():
+            if item.product:
+                item.product.stock += item.quantity
+                item.product.save()
+        
+        # Mark order as cancelled
+        self.status = 'cancelled'
+        self.save()
+        return True
 
 
 # ===========================

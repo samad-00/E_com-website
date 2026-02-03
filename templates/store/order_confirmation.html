@@ -128,7 +128,7 @@
         </div>
         
         <!-- Action Buttons -->
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
             <a href="{% url 'user_orders' %}" class="btn btn-primary btn-lg">
                 <i class="fas fa-list"></i> View My Orders
             </a>
@@ -136,6 +136,14 @@
                 <i class="fas fa-shopping-bag"></i> Continue Shopping
             </a>
         </div>
+        
+        {% if order.can_be_cancelled %}
+        <div style="text-align: center;">
+            <a href="{% url 'cancel_order' order.id %}" class="btn btn-outline btn-lg" style="border-color: #dc3545; color: #dc3545;">
+                <i class="fas fa-times"></i> Cancel Order
+            </a>
+        </div>
+        {% endif %}
     </div>
 </div>
 

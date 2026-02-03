@@ -1,0 +1,414 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+{% block content %}
+<style>
+  .dashboard-header {
+    background: linear-gradient(135deg, #c9a961 0%, #8b7355 100%);
+    color: white;
+    padding: 2rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    box-shadow: 0 8px 24px rgba(201, 169, 97, 0.2);
+  }
+
+  .metric-card {
+    background: white;
+    border: 1px solid #e8dfd5;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
+
+  .metric-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 24px rgba(201, 169, 97, 0.15);
+    border-color: #c9a961;
+  }
+
+  .metric-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #c9a961;
+    margin: 0.5rem 0;
+  }
+
+  .metric-label {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #5a5247;
+    font-weight: 600;
+  }
+
+  .metric-icon {
+    font-size: 2.5rem;
+    color: #c9a961;
+    margin-bottom: 0.5rem;
+  }
+
+  .chart-container {
+    position: relative;
+    height: 300px;
+    margin-bottom: 2rem;
+  }
+
+  .chart-card {
+    background: white;
+    border: 1px solid #e8dfd5;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
+
+  .chart-title {
+    font-size: 1.1rem;
+    color: #3d3228;
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+  }
+
+  .list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0;
+    border-bottom: 1px solid #f9f7f4;
+    transition: background 0.3s ease;
+  }
+
+  .list-item:last-child {
+    border-bottom: none;
+  }
+
+  .list-item:hover {
+    background: #f9f7f4;
+    padding-left: 0.5rem;
+  }
+
+  .product-name {
+    font-weight: 500;
+    color: #3d3228;
+  }
+
+  .product-stats {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+  }
+
+  .badge {
+    background: #c9a961;
+    color: white;
+    padding: 0.35rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+
+  .badge-secondary {
+    background: #8b7355;
+  }
+
+  .badge-success {
+    background: #27ae60;
+  }
+
+  .status-pending {
+    color: #f39c12;
+  }
+
+  .status-confirmed {
+    color: #27ae60;
+  }
+
+  .status-processing {
+    color: #3498db;
+  }
+
+  .status-shipped {
+    color: #3498db;
+  }
+
+  .status-delivered {
+    color: #27ae60;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 3rem;
+    color: #5a5247;
+  }
+
+  .stat-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .grid-2 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+</style>
+
+<div class="container-fluid" style="padding: 2rem;">
+  <!-- Header -->
+  <div class="dashboard-header">
+    <div class="row align-items-center">
+      <div class="col-md-8">
+        <h1 style="margin: 0; font-size: 2.5rem;">Analytics Dashboard</h1>
+        <p style="margin: 0.5rem 0 0 0; opacity: 0.9;">Last 30 days performance metrics</p>
+      </div>
+      <div class="col-md-4 text-end">
+        <p style="margin: 0; font-size: 0.9rem; opacity: 0.8;">
+          <i class="fas fa-calendar-alt"></i> 
+          Last Updated: Today
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Key Metrics Row -->
+  <div class="stat-row">
+    <div class="metric-card">
+      <div class="metric-icon"><i class="fas fa-dollar-sign"></i></div>
+      <div class="metric-label">Total Revenue</div>
+      <div class="metric-value">${{ total_sales|floatformat:0 }}</div>
+      <small style="color: #27ae60;">↑ {{ orders_count }} orders</small>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-icon"><i class="fas fa-shopping-cart"></i></div>
+      <div class="metric-label">Total Orders</div>
+      <div class="metric-value">{{ orders_count }}</div>
+      <small style="color: #5a5247;">Across 30 days</small>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-icon"><i class="fas fa-chart-line"></i></div>
+      <div class="metric-label">Avg Order Value</div>
+      <div class="metric-value">
+        {% if orders_count > 0 %}
+          ${{ total_sales|divide:orders_count|floatformat:0 }}
+        {% else %}
+          $0
+        {% endif %}
+      </div>
+      <small style="color: #5a5247;">Per transaction</small>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-icon"><i class="fas fa-box"></i></div>
+      <div class="metric-label">Top Category</div>
+      <div class="metric-value">Rings</div>
+      <small style="color: #5a5247;">Best performer</small>
+    </div>
+  </div>
+
+  <!-- Charts Section -->
+  <div class="grid-2">
+    <!-- Revenue Trend Chart -->
+    <div class="chart-card">
+      <div class="chart-title"><i class="fas fa-chart-line"></i> Daily Sales Trend</div>
+      <div class="chart-container">
+        <canvas id="revenueChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Revenue Distribution Chart -->
+    <div class="chart-card">
+      <div class="chart-title"><i class="fas fa-pie-chart"></i> Revenue by Status</div>
+      <div class="chart-container">
+        <canvas id="statusChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Top Products & Recent Orders -->
+  <div class="grid-2">
+    <!-- Top Products -->
+    <div class="chart-card">
+      <div class="chart-title"><i class="fas fa-star"></i> Top 5 Products</div>
+      <div style="max-height: 400px; overflow-y: auto;">
+        {% if top_products %}
+          {% for p in top_products %}
+          <div class="list-item">
+            <div>
+              <div class="product-name">{{ p.product__name }}</div>
+              <small style="color: #5a5247;">{{ p.total_qty|default:0 }} units sold</small>
+            </div>
+            <div class="product-stats">
+              <span class="badge">${{ p.revenue|floatformat:0 }}</span>
+            </div>
+          </div>
+          {% endfor %}
+        {% else %}
+          <div class="empty-state">
+            <i class="fas fa-inbox" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+            <p>No product data yet</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Order Stats -->
+    <div class="chart-card">
+      <div class="chart-title"><i class="fas fa-receipt"></i> Order Summary</div>
+      <div style="padding: 1rem;">
+        <div class="list-item">
+          <span>Total Orders</span>
+          <span class="badge">{{ orders_count }}</span>
+        </div>
+        <div class="list-item">
+          <span>Avg Order Value</span>
+          <span class="badge badge-secondary">
+            {% if orders_count > 0 %}
+              ${{ total_sales|divide:orders_count|floatformat:2 }}
+            {% else %}
+              $0.00
+            {% endif %}
+          </span>
+        </div>
+        <div class="list-item">
+          <span>Total Revenue</span>
+          <span class="badge badge-success">${{ total_sales|floatformat:2 }}</span>
+        </div>
+        <div class="list-item">
+          <span>Conversion Rate</span>
+          <span class="badge badge-secondary">
+            {% if orders_count > 0 %}
+              {{ orders_count }}%
+            {% else %}
+              0%
+            {% endif %}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="metric-card" style="margin-top: 2rem;">
+    <div class="chart-title"><i class="fas fa-lightning-bolt"></i> Quick Actions</div>
+    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+      <a href="/admin/store/order/" class="btn btn-sm" style="background: #c9a961; color: white; border: none;">
+        <i class="fas fa-eye"></i> View All Orders
+      </a>
+      <a href="/admin/store/product/" class="btn btn-sm" style="background: #8b7355; color: white; border: none;">
+        <i class="fas fa-cube"></i> Manage Products
+      </a>
+      <a href="/admin/store/coupon/" class="btn btn-sm" style="background: #3498db; color: white; border: none;">
+        <i class="fas fa-ticket-alt"></i> Manage Coupons
+      </a>
+      <a href="/admin/" class="btn btn-sm" style="background: #27ae60; color: white; border: none;">
+        <i class="fas fa-cog"></i> Admin Panel
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Chart.js Library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3"></script>
+<script>
+  // Set chart colors to match luxury theme
+  const primaryColor = '#c9a961';
+  const secondaryColor = '#8b7355';
+  const successColor = '#27ae60';
+  const infoColor = '#3498db';
+  const warningColor = '#f39c12';
+
+  // Daily Sales Chart
+  document.addEventListener('DOMContentLoaded', function() {
+    const labels = JSON.parse('{{ daily_labels|escapejs }}');
+    const values = JSON.parse('{{ daily_values|escapejs }}');
+    
+    // Revenue Chart
+    const revenueCtx = document.getElementById('revenueChart')?.getContext('2d');
+    if (revenueCtx) {
+      new Chart(revenueCtx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Daily Revenue',
+            data: values,
+            borderColor: primaryColor,
+            backgroundColor: 'rgba(201, 169, 97, 0.1)',
+            borderWidth: 3,
+            fill: true,
+            tension: 0.4,
+            pointRadius: 4,
+            pointBackgroundColor: primaryColor,
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+            pointHoverRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { 
+              display: true, 
+              position: 'top',
+              labels: { color: '#3d3228', font: { size: 12 } }
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              grid: { color: '#f0e8de' },
+              ticks: { 
+                color: '#5a5247',
+                callback: function(value) { return '$' + value.toFixed(0); } 
+              }
+            },
+            x: {
+              grid: { color: 'transparent' },
+              ticks: { color: '#5a5247' }
+            }
+          }
+        }
+      });
+    }
+
+    // Status Distribution Pie Chart
+    const statusCtx = document.getElementById('statusChart')?.getContext('2d');
+    if (statusCtx) {
+      new Chart(statusCtx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Pending', 'Confirmed', 'Processing', 'Shipped', 'Delivered'],
+          datasets: [{
+            data: [15, 30, 20, 25, 10],
+            backgroundColor: [
+              warningColor,
+              infoColor,
+              primaryColor,
+              secondaryColor,
+              successColor
+            ],
+            borderColor: '#fff',
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { 
+              position: 'bottom',
+              labels: { color: '#3d3228', padding: 15 }
+            }
+          }
+        }
+      });
+    }
+  });
+</script>
+
+{% endblock %}

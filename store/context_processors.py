@@ -1,4 +1,5 @@
 from django.contrib.auth.models import AnonymousUser
+from django.conf import settings
 from store.models import CartItem
 
 

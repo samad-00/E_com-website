@@ -1,6 +1,7 @@
 from django.contrib import admin
 from .models import (
     Category, Product, Review, Wishlist, 
+    Coupon,
     CartItem, Order, OrderItem, UserProfile, ContactQuery
 )
 
@@ -51,10 +52,16 @@ class ProductAdmin(admin.ModelAdmin):
 # ===========================
 @admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):
-    list_display = ('product', 'user', 'rating', 'created_at')
-    list_filter = ('rating', 'created_at')
+    list_display = ('product', 'user', 'rating', 'approved', 'created_at')
+    list_filter = ('rating', 'approved', 'created_at')
     search_fields = ('product__name', 'user__username', 'comment')
     readonly_fields = ('created_at', 'product', 'user')
+    actions = ['approve_reviews']
+
+    def approve_reviews(self, request, queryset):
+        updated = queryset.update(approved=True)
+        self.message_user(request, f'{updated} review(s) approved.')
+    approve_reviews.short_description = 'Approve selected reviews'
 
 
 # ===========================
@@ -147,3 +154,10 @@ class ContactQueryAdmin(admin.ModelAdmin):
             'classes': ('collapse',)
         }),
     )
+
+
+@admin.register(Coupon)
+class CouponAdmin(admin.ModelAdmin):
+    list_display = ('code', 'discount_percent', 'active', 'used_count', 'usage_limit', 'expiry_date')
+    list_filter = ('active', 'expiry_date')
+    search_fields = ('code', 'description')

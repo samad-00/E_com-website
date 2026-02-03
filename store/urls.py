@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from . import chat_views
 
 urlpatterns = [
     # Home and Shop
@@ -20,7 +21,10 @@ urlpatterns = [
     # Checkout & Orders
     path('checkout/', views.checkout, name='checkout'),
     path('order-confirmation/<int:order_id>/', views.order_confirmation, name='order_confirmation'),
+    path('order-cancel/<int:order_id>/', views.cancel_order, name='cancel_order'),
     path('orders/', views.user_orders, name='user_orders'),
+    # Analytics Dashboard
+    path('dashboard/', views.analytics_dashboard, name='analytics'),
     
     # Wishlist
     path('wishlist/', views.wishlist_view, name='wishlist'),
@@ -29,4 +33,8 @@ urlpatterns = [
     # Contact & Queries
     path('contact/', views.contact_query, name='contact'),
     path('contact/thank-you/', views.contact_thank_you, name='contact_thank_you'),
+    
+    # AI Chat API
+    path('api/chat/', chat_views.chat_api, name='chat_api'),
+    path('api/products/', chat_views.product_search_api, name='product_search_api'),
 ]

@@ -1,0 +1,6 @@
+Thank you for your order.
+
+Order Number: {{ order.order_number }}
+Total: ${{ order.total_price }}
+
+We'll notify you when your order ships.

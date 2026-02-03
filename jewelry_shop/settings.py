@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -41,6 +42,7 @@ INSTALLED_APPS = [
     'users',
     'crispy_forms',
     'crispy_bootstrap5',
+    'payments',
 ]
 
 MIDDLEWARE = [
@@ -142,6 +144,29 @@ LOGOUT_REDIRECT_URL = 'home'
 # Stripe Settings
 STRIPE_PUBLIC_KEY = 'pk_test_51234567890123456789'
 STRIPE_SECRET_KEY = 'sk_test_1234567890123456789'
+STRIPE_WEBHOOK_SECRET = ''  # set in environment for production
 
-# Email Settings
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# Email Settings (use environment variables in production)
+EMAIL_BACKEND = os.environ.get(
+    'EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend'
+
+)
+EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.example.com')
+EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 587))
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True') == 'True'
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'webmaster@localhost')
+
+# Inventory
+LOW_STOCK_THRESHOLD = int(os.environ.get('LOW_STOCK_THRESHOLD', 5))
+
+# Twilio SMS settings
+TWILIO_ACCOUNT_SID = os.environ.get('TWILIO_ACCOUNT_SID', '')
+TWILIO_AUTH_TOKEN = os.environ.get('TWILIO_AUTH_TOKEN', '')
+TWILIO_FROM_NUMBER = os.environ.get('TWILIO_FROM_NUMBER', '')
+
+# Live chat widget id (Tawk.to) - Sign up at https://www.tawk.to
+# Example ID: '5f7a6c8e1234567890abcdef/default'
+TAWKTO_WIDGET_ID = os.environ.get('TAWKTO_WIDGET_ID', '5f7a6c8e1234567890abcdef')
+

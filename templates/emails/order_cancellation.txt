@@ -1,0 +1,24 @@
+Hi {{ order.first_name }},
+
+Your order #{{ order.order_number }} has been successfully cancelled.
+
+Order Details:
+- Order Number: {{ order.order_number }}
+- Order Date: {{ order.created_at|date:"M d, Y" }}
+- Total Amount: ${{ order.total_price }}
+- Number of Items: {{ order.items.count }}
+
+The following items have been returned to stock:
+{% for item in order.items.all %}
+- {{ item.product.name }} (Qty: {{ item.quantity }})
+{% endfor %}
+
+Important Notes:
+- If you have already made payment for this order, please allow 5-7 business days for the refund to appear in your account.
+- Stock for all items has been restored and is available for purchase.
+- If you need any assistance, please don't hesitate to contact us.
+
+Thank you for your understanding. We hope to see you again soon!
+
+Best regards,
+KIRAA Jewelry Team

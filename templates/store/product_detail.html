@@ -56,10 +56,11 @@
             
             <!-- Price -->
             <div class="product-price" style="margin-bottom: 1rem;">
+                {% load custom_filters %}
                 {% if product.original_price %}
-                    <span class="original">₹{{ product.original_price|floatformat:0 }}</span>
+                    <span class="original">${{ product.original_price|floatformat:2 }}</span>
                 {% endif %}
-                ₹{{ product.price|floatformat:0 }}
+                ${{ product.price|floatformat:2 }}
                 {% if product.get_discount_percentage > 0 %}
                     <span class="product-badge" style="margin-left: 1rem;">Save {{ product.get_discount_percentage }}%</span>
                 {% endif %}

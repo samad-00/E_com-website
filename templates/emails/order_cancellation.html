@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f5f5f5; }
+        .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 30px; border-radius: 8px; }
+        .header { background: linear-gradient(135deg, #c9a961 0%, #d4b576 100%); color: white; padding: 20px; text-align: center; border-radius: 8px; margin-bottom: 20px; }
+        .header h1 { margin: 0; font-size: 24px; }
+        .content { padding: 20px 0; }
+        .order-info { background-color: #f9f9f9; padding: 15px; border-left: 4px solid #c9a961; margin: 15px 0; }
+        .items-table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+        .items-table th, .items-table td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
+        .items-table th { background-color: #f0f0f0; font-weight: bold; }
+        .items-table tr:last-child td { border-bottom: none; }
+        .note-box { background-color: #fff3cd; border: 1px solid #ffc107; padding: 15px; border-radius: 5px; margin: 15px 0; }
+        .note-box h4 { color: #856404; margin-top: 0; }
+        .note-box ul { margin: 10px 0; padding-left: 20px; }
+        .note-box li { margin: 5px 0; color: #856404; }
+        .footer { text-align: center; padding-top: 20px; border-top: 1px solid #ddd; color: #666; font-size: 12px; }
+        .status-badge { display: inline-block; background-color: #dc3545; color: white; padding: 5px 10px; border-radius: 3px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Order Cancellation Confirmation</h1>
+        </div>
+        
+        <div class="content">
+            <p>Hi {{ order.first_name }},</p>
+            
+            <p>Your order has been successfully <strong>cancelled</strong>.</p>
+            
+            <div class="order-info">
+                <h3>Order Details</h3>
+                <p><strong>Order Number:</strong> #{{ order.order_number }}</p>
+                <p><strong>Order Date:</strong> {{ order.created_at|date:"F d, Y" }}</p>
+                <p><strong>Total Amount:</strong> ${{ order.total_price }}</p>
+                <p><strong>Status:</strong> <span class="status-badge">CANCELLED</span></p>
+            </div>
+            
+            <h3>Cancelled Items</h3>
+            <table class="items-table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                        <th>Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in order.items.all %}
+                    <tr>
+                        <td>
+                            {% if item.product %}
+                                {{ item.product.name }}
+                            {% else %}
+                                Product (Deleted)
+                            {% endif %}
+                        </td>
+                        <td>{{ item.quantity }}</td>
+                        <td>${{ item.price }}</td>
+                        <td><strong>${{ item.get_subtotal }}</strong></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            
+            <div class="note-box">
+                <h4>What Happens Next?</h4>
+                <ul>
+                    <li>Stock for all items has been restored</li>
+                    <li>If you have already paid, a refund will be processed within 5-7 business days</li>
+                    <li>You can re-order these items anytime from our shop</li>
+                    <li>If you need any further assistance, please contact our support team</li>
+                </ul>
+            </div>
+            
+            <p>We're sorry to see you go. If you have any feedback about your cancellation, please don't hesitate to reach out to us.</p>
+            
+            <p>Best regards,<br>
+            <strong>KIRAA Jewelry Team</strong></p>
+        </div>
+        
+        <div class="footer">
+            <p>&copy; 2026 KIRAA Jewelry. All rights reserved.</p>
+            <p>If you have any questions, please contact us at support@kiraa.com</p>
+        </div>
+    </div>
+</body>
+</html>
