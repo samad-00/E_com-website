@@ -24,7 +24,7 @@
                                 <p><strong>Order Date:</strong> {{ order.created_at|date:"M d, Y" }}</p>
                             </div>
                             <div class="col-md-6">
-                                <p><strong>Total Amount:</strong> ${{ order.total_price }}</p>
+                                <p><strong>Total Amount:</strong> ₹{{ order.total_price }}</p>
                                 <p><strong>Items:</strong> {{ order.items.count }}</p>
                                 <p><strong>Payment Method:</strong> {{ order.get_payment_method_display }}</p>
                             </div>
@@ -45,7 +45,7 @@
                                     {% endif %}
                                 </div>
                                 <span class="badge bg-gold" style="background-color: #c9a961;">
-                                    ${{ item.get_subtotal }}
+                                    ₹{{ item.get_subtotal }}
                                 </span>
                             </li>
                             {% endfor %}

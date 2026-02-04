@@ -35,7 +35,7 @@
                 <h3>Order Details</h3>
                 <p><strong>Order Number:</strong> #{{ order.order_number }}</p>
                 <p><strong>Order Date:</strong> {{ order.created_at|date:"F d, Y" }}</p>
-                <p><strong>Total Amount:</strong> ${{ order.total_price }}</p>
+                <p><strong>Total Amount:</strong> ₹{{ order.total_price }}</p>
                 <p><strong>Status:</strong> <span class="status-badge">CANCELLED</span></p>
             </div>
             
@@ -60,8 +60,8 @@
                             {% endif %}
                         </td>
                         <td>{{ item.quantity }}</td>
-                        <td>${{ item.price }}</td>
-                        <td><strong>${{ item.get_subtotal }}</strong></td>
+                        <td>₹{{ item.price }}</td>
+                        <td><strong>₹{{ item.get_subtotal }}</strong></td>
                     </tr>
                     {% endfor %}
                 </tbody>

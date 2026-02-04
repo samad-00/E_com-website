@@ -1,13 +1,16 @@
-"""
-AI Chatbot views for handling customer inquiries
-"""
 
-from django.http import JsonResponse
+
+import json
+import logging
+from django.http import JsonResponse, HttpRequest
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.utils import timezone
-from store.models import Product, Category
-import json
+from django.core.exceptions import ObjectDoesNotExist
+from store.models import Product
+
+# Set up logging
+logger = logging.getLogger(__name__)
 
 # Simple rule-based chatbot for jewelry store
 JEWELRY_RESPONSES = {
@@ -27,11 +30,14 @@ JEWELRY_RESPONSES = {
     'help': 'I can help you with: products, prices, shipping, orders, beauty products, or general questions. What would you like to know?',
 }
 
-def get_ai_response(user_message):
+def get_ai_response(user_message: str) -> str:
     """
     Generate AI response based on user message
     Uses keyword matching with fallback to general response
     """
+    if not user_message or not isinstance(user_message, str):
+        return "I'm sorry, I didn't receive a valid message. Could you please try again?"
+    
     message_lower = user_message.lower().strip()
     
     # Check for keyword matches
@@ -51,13 +57,29 @@ def get_ai_response(user_message):
 
 @csrf_exempt
 @require_POST
-def chat_api(request):
+def chat_api(request: HttpRequest) -> JsonResponse:
     """
     API endpoint for chatbot messages
     Receives user message and returns AI response
     """
     try:
-        data = json.loads(request.body)
+        # Check content type
+        if request.content_type and 'application/json' not in request.content_type:
+            return JsonResponse({
+                'success': False,
+                'error': 'Content-Type must be application/json'
+            }, status=400)
+        
+        # Parse JSON data
+        try:
+            data = json.loads(request.body)
+        except json.JSONDecodeError as e:
+            logger.error(f"JSON decode error: {e}")
+            return JsonResponse({
+                'success': False,
+                'error': 'Invalid JSON format'
+            }, status=400)
+        
         user_message = data.get('message', '').strip()
         
         if not user_message:
@@ -66,54 +88,82 @@ def chat_api(request):
                 'error': 'Message is required'
             }, status=400)
         
+        # Validate message length
+        if len(user_message) > 1000:
+            return JsonResponse({
+                'success': False,
+                'error': 'Message too long. Please keep it under 1000 characters.'
+            }, status=400)
+        
         # Get AI response
         response = get_ai_response(user_message)
         
         return JsonResponse({
             'success': True,
             'message': response,
-            'timestamp': str(timezone.now())
+            'timestamp': timezone.now().isoformat()
         })
     
-    except json.JSONDecodeError:
-        return JsonResponse({
-            'success': False,
-            'error': 'Invalid JSON'
-        }, status=400)
     except Exception as e:
+        logger.error(f"Chat API error: {e}")
         return JsonResponse({
             'success': False,
-            'error': str(e)
+            'error': 'An unexpected error occurred. Please try again.'
         }, status=500)
 
 @csrf_exempt
-def product_search_api(request):
+def product_search_api(request: HttpRequest) -> JsonResponse:
     """
     API endpoint to search products
     Used by chatbot to find products based on user queries
     """
-    query = request.GET.get('q', '').lower()
-    
-    if not query:
-        return JsonResponse({'products': []})
-    
-    products = Product.objects.filter(
-        name__icontains=query
-    ) | Product.objects.filter(
-        description__icontains=query
-    )[:5]
-    
-    data = {
-        'products': [
-            {
-                'id': p.id,
-                'name': p.name,
-                'price': str(p.price),
-                'slug': p.slug,
-                'category': p.category.name if p.category else 'N/A'
-            }
-            for p in products
-        ]
-    }
-    
-    return JsonResponse(data)
+    try:
+        query = request.GET.get('q', '').strip()
+        
+        if not query:
+            return JsonResponse({'products': []})
+        
+        # Limit query length for security
+        if len(query) > 100:
+            return JsonResponse({
+                'error': 'Search query too long'
+            }, status=400)
+        
+        # Search products with case-insensitive matching
+        products = Product.objects.filter(
+            name__icontains=query
+        ) | Product.objects.filter(
+            description__icontains=query
+        )
+        
+        # Limit results and add error handling
+        products = products[:5]
+        
+        data = {
+            'products': [
+                {
+                    'id': p.pk,  # Use pk instead of id for Django model compatibility
+                    'name': p.name,
+                    'price': str(p.price),
+                    'slug': p.slug,
+                    'category': p.category.name if p.category else 'N/A',
+                    'url': f'/product/{p.slug}/' if p.slug else '#'
+                }
+                for p in products
+            ]
+        }
+        
+        return JsonResponse(data)
+        
+    except ObjectDoesNotExist:
+        logger.error("Product search - Object does not exist")
+        return JsonResponse({
+            'products': [],
+            'error': 'Search results not available'
+        })
+    except Exception as e:
+        logger.error(f"Product search error: {e}")
+        return JsonResponse({
+            'products': [],
+            'error': 'Search temporarily unavailable'
+        }, status=500)

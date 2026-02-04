@@ -10,28 +10,28 @@
         
         <!-- PRODUCT IMAGES -->
         <div>
-            <div class="product-image" style="padding-bottom: 100%; position: relative; margin-bottom: 1rem;">
+            <div class="product-image" style="position: relative; margin-bottom: 1rem; background: #f8f9fa; border-radius: 8px; overflow: hidden;">
                 <img id="main-image" 
                      src="{% if product.image %}{{ product.image.url }}{% else %}{% static 'images/placeholder.svg' %}{% endif %}" 
                      alt="{{ product.name }}"
-                     style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; cursor: zoom-in;">
+                     style="width: 100%; height: auto; display: block; cursor: zoom-in; border-radius: 8px;">
             </div>
             
             <!-- Thumbnail Gallery -->
             <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
-                <div {% if product.image %}onclick="changeImage('{{ product.image.url }}')"{% endif %} style="cursor: pointer; border-radius: 4px; overflow: hidden; border: 2px solid var(--primary-color);">
+                <div {% if product.image %}onclick="changeImage('{{ product.image.url }}')"{% endif %} style="cursor: pointer; border-radius: 4px; overflow: hidden; border: 2px solid var(--primary-color); aspect-ratio: 1; background: #f8f9fa;">
                     <img src="{% if product.image %}{{ product.image.url }}{% else %}{% static 'images/placeholder.jpg' %}{% endif %}" 
                          alt="Image 1" 
-                         style="width: 100%; height: 100%; object-fit: cover;">
+                         style="width: 100%; height: 100%; object-fit: contain; border-radius: 4px;">
                 </div>
                 {% if product.image_2 %}
-                    <div onclick="changeImage('{{ product.image_2.url }}')" style="cursor: pointer; border-radius: 4px; overflow: hidden; border: 2px solid var(--border-color);">
-                        <img src="{{ product.image_2.url }}" alt="Image 2" style="width: 100%; height: 100%; object-fit: cover;">
+                    <div onclick="changeImage('{{ product.image_2.url }}')" style="cursor: pointer; border-radius: 4px; overflow: hidden; border: 2px solid var(--border-color); aspect-ratio: 1; background: #f8f9fa;">
+                        <img src="{{ product.image_2.url }}" alt="Image 2" style="width: 100%; height: 100%; object-fit: contain; border-radius: 4px;">
                     </div>
                 {% endif %}
                 {% if product.image_3 %}
-                    <div onclick="changeImage('{{ product.image_3.url }}')" style="cursor: pointer; border-radius: 4px; overflow: hidden; border: 2px solid var(--border-color);">
-                        <img src="{{ product.image_3.url }}" alt="Image 3" style="width: 100%; height: 100%; object-fit: cover;">
+                    <div onclick="changeImage('{{ product.image_3.url }}')" style="cursor: pointer; border-radius: 4px; overflow: hidden; border: 2px solid var(--border-color); aspect-ratio: 1; background: #f8f9fa;">
+                        <img src="{{ product.image_3.url }}" alt="Image 3" style="width: 100%; height: 100%; object-fit: contain; border-radius: 4px;">
                     </div>
                 {% endif %}
             </div>
@@ -58,9 +58,9 @@
             <div class="product-price" style="margin-bottom: 1rem;">
                 {% load custom_filters %}
                 {% if product.original_price %}
-                    <span class="original">${{ product.original_price|floatformat:2 }}</span>
+                    <span class="original">₹{{ product.original_price|floatformat:0 }}</span>
                 {% endif %}
-                ${{ product.price|floatformat:2 }}
+                ₹{{ product.price|floatformat:0 }}
                 {% if product.get_discount_percentage > 0 %}
                     <span class="product-badge" style="margin-left: 1rem;">Save {{ product.get_discount_percentage }}%</span>
                 {% endif %}

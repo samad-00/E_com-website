@@ -5,7 +5,7 @@ Your order #{{ order.order_number }} has been successfully cancelled.
 Order Details:
 - Order Number: {{ order.order_number }}
 - Order Date: {{ order.created_at|date:"M d, Y" }}
-- Total Amount: ${{ order.total_price }}
+- Total Amount: ₹{{ order.total_price }}
 - Number of Items: {{ order.items.count }}
 
 The following items have been returned to stock:
