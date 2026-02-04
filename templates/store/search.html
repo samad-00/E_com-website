@@ -1,15 +1,26 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load custom_filters %}
 
 {% block title %}Search Results - Jewelry Store{% endblock %}
 
 {% block content %}
 
 <div class="search-banner">
+    <!-- Animated Background Elements -->
+    <div class="hero-animation">
+        <div class="floating-diamond diamond-1"></div>
+        <div class="floating-diamond diamond-2"></div>
+        <div class="floating-star star-1"></div>
+        <div class="floating-star star-2"></div>
+        <div class="floating-circle circle-1"></div>
+        <div class="gradient-orb orb-1"></div>
+    </div>
+    
     <div class="page-banner-content">
-        <h1>Search Results</h1>
+        <h1 class="hero-title">Search Results</h1>
         {% if query %}
-            <p style="color: rgba(255, 255, 255, 0.85); font-size: 1.1rem;">Results for: <strong>"{{ query }}"</strong></p>
+            <p class="hero-subtitle">Results for: <strong>"{{ query }}"</strong></p>
         {% endif %}
     </div>
 </div>
@@ -24,7 +35,7 @@
             {% for product in products %}
                 <div class="product-card">
                     <div class="product-image">
-                        <img src="{% if product.image %}{{ product.image.url }}{% else %}{% static 'images/placeholder.svg' %}{% endif %}" 
+                        <img src="{% if product.image %}{{ product.image|image_url }}{% else %}{% static 'images/placeholder.svg' %}{% endif %}" 
                              alt="{{ product.name }}" 
                              loading="lazy">
                         {% if product.get_discount_percentage > 0 %}

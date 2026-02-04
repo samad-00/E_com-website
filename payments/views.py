@@ -10,7 +10,6 @@ from store.models import Order, OrderItem
 from store.email_utils import send_order_confirmation_email, send_low_stock_alert
 from store.sms_utils import send_sms
 
-
 stripe.api_key = getattr(settings, 'STRIPE_SECRET_KEY', '')
 
 

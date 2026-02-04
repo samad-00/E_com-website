@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load custom_filters %}
 
 {% block title %}Shopping Cart - Jewelry Store{% endblock %}
 
@@ -34,7 +35,7 @@
                                     <tr>
                                         <td>
                                             <div style="display: flex; align-items: center; gap: 1rem;">
-                                                <img src="{% if item.product.image %}{{ item.product.image.url }}{% else %}{% static 'images/placeholder.svg' %}{% endif %}" 
+                                                <img src="{% if item.product.image %}{{ item.product.image|image_url }}{% else %}{% static 'images/placeholder.svg' %}{% endif %}" 
                                                      alt="{{ item.product.name }}" 
                                                      class="cart-item-image">
                                                 <div>

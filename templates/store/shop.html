@@ -1,14 +1,25 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load custom_filters %}
 
 {% block title %}Shop - Jewelry Store{% endblock %}
 
 {% block content %}
 
 <div class="shop-banner">
+    <!-- Animated Background Elements -->
+    <div class="hero-animation">
+        <div class="floating-diamond diamond-1"></div>
+        <div class="floating-diamond diamond-2"></div>
+        <div class="floating-star star-1"></div>
+        <div class="floating-star star-2"></div>
+        <div class="floating-circle circle-1"></div>
+        <div class="gradient-orb orb-1"></div>
+    </div>
+    
     <div class="page-banner-content">
-        <h1>Shop Our Collections</h1>
-        <p>Explore our curated selection of premium jewelry</p>
+        <h1 class="hero-title">Shop Our Collections</h1>
+        <p class="hero-subtitle">Explore our curated selection of premium jewelry</p>
     </div>
 </div>
 
@@ -105,7 +116,7 @@
                     {% for product in products %}
                         <div class="product-card">
                             <div class="product-image">
-                                <img src="{% if product.image %}{{ product.image.url }}{% else %}{% static 'images/placeholder.svg' %}{% endif %}" 
+                                <img src="{% if product.image %}{{ product.image|image_url }}{% else %}{% static 'images/placeholder.svg' %}{% endif %}" 
                                      alt="{{ product.name }}" 
                                      loading="lazy">
                                 <div class="product-badge">

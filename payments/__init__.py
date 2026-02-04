@@ -1,1 +1,1 @@
-default_app_config = 'payments.apps.PaymentsConfig'
+# Payment app initialization

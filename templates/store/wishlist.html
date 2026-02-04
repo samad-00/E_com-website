@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load custom_filters %}
 
 {% block title %}My Wishlist - Jewelry Store{% endblock %}
 
@@ -17,7 +18,7 @@
             {% for product in wishlist_items %}
                 <div class="product-card">
                     <div class="product-image">
-                        <img src="{% if product.image %}{{ product.image.url }}{% else %}{% static 'images/placeholder.svg' %}{% endif %}" 
+                        <img src="{% if product.image %}{{ product.image|image_url }}{% else %}{% static 'images/placeholder.svg' %}{% endif %}" 
                              alt="{{ product.name }}" 
                              loading="lazy">
                         <div class="product-badge">In Wishlist</div>

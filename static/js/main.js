@@ -10,7 +10,76 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeWishlistButtons();
     initializeInteractiveBackground();
     initializeScrollAnimations();
+    
+    // Force multiple initialization attempts for animations
+    initializeHeroAnimations();
+    setTimeout(initializeHeroAnimations, 500);
+    setTimeout(initializeHeroAnimations, 1000);
 });
+
+/**
+ * Initialize Hero Section Animations
+ */
+function initializeHeroAnimations() {
+    console.log('Initializing hero animations...');
+    
+    // Wait a bit for DOM to be fully ready
+    setTimeout(function() {
+        // Check if we're on a page with hero section (multiple possible classes)
+        const heroSection = document.querySelector('.hero, .contact-hero, .shop-hero, .category-hero');
+        if (!heroSection) {
+            console.log('No hero section found');
+            return;
+        }
+        
+        console.log('Found hero section:', heroSection.className);
+        
+        // Check if animations container exists
+        const animationContainer = heroSection.querySelector('.hero-animation');
+        if (!animationContainer) {
+            console.log('No animation container found');
+            return;
+        }
+        
+        console.log('Found animation container');
+        
+        // Force animation restart on page load
+        const animatedElements = animationContainer.querySelectorAll('.floating-diamond, .floating-star, .floating-circle, .gradient-orb');
+        console.log(`Found ${animatedElements.length} animated elements`);
+        
+        animatedElements.forEach((element, index) => {
+            // Force visibility and restart animations
+            element.style.display = 'block';
+            element.style.visibility = 'visible';
+            element.style.opacity = '1';
+            element.style.zIndex = '100';
+            
+            // Force reflow to restart animations
+            element.style.animation = 'none';
+            element.offsetHeight; // Trigger reflow
+            element.style.animation = '';
+            
+            console.log(`Initialized animation for element ${index + 1}:`, element.className);
+        });
+        
+        // Add mouse interaction for enhanced animations
+        heroSection.addEventListener('mousemove', function(e) {
+            const rect = heroSection.getBoundingClientRect();
+            const x = (e.clientX - rect.left) / rect.width;
+            const y = (e.clientY - rect.top) / rect.height;
+            
+            animatedElements.forEach((element, index) => {
+                const speed = (index % 3 + 1) * 0.3;
+                const xMove = (x - 0.5) * 20 * speed;
+                const yMove = (y - 0.5) * 20 * speed;
+                
+                element.style.transform += ` translate(${xMove}px, ${yMove}px)`;
+            });
+        });
+        
+        console.log('Hero animations initialized successfully');
+    }, 100);
+}
 
 /**
  * Initialize Interactive Background with Particles

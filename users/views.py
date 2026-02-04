@@ -4,6 +4,10 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.views.decorators.http import require_http_methods
+from django.core.mail import send_mail
+from django.conf import settings
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
 
 from .forms import (
     UserRegistrationForm, UserLoginForm, 
@@ -17,27 +21,74 @@ from store.models import UserProfile
 # USER REGISTRATION
 # ===========================
 def register(request):
-    """User registration page."""
+    """User registration page - Creates new user accounts."""
+    
+    # Check if someone submitted the registration form
     if request.method == 'POST':
+        # Get the form data that user filled out
         form = UserRegistrationForm(request.POST)
+        
+        # Check if all form fields are valid
         if form.is_valid():
+            # Create the new user account
             user = form.save()
-            # UserProfile is created automatically by signal handler
             
-            messages.success(request, 'Account created successfully! Please log in.')
+            # Send welcome email to new user
+            send_welcome_email_to_user(user, request)
+            
+            # Show success message and redirect to login page
+            messages.success(request, 'Account created successfully! Welcome email sent. Please log in.')
             return redirect('login')
         else:
-            for field, errors in form.errors.items():
-                for error in errors:
-                    messages.error(request, f'{field}: {error}')
+            # If form has errors, show them to user
+            show_form_errors(request, form)
     else:
+        # If user just visiting page (not submitting form), show empty form
         form = UserRegistrationForm()
     
+    # Prepare data to send to template
     context = {
         'form': form,
         'page_title': 'Register - Jewelry Store',
     }
     return render(request, 'users/register.html', context)
+
+
+# Helper function to send welcome email
+def send_welcome_email_to_user(user, request):
+    """Send welcome email to newly registered user."""
+    try:
+        # Email subject
+        email_subject = 'Welcome to KIRAA!'
+        
+        # Create HTML email content from template
+        html_email_content = render_to_string('emails/welcome_email.html', {
+            'user': user,
+        })
+        
+        # Create plain text version (no HTML)
+        plain_email_content = strip_tags(html_email_content)
+        
+        # Send the email
+        send_mail(
+            email_subject,
+            plain_email_content,
+            settings.DEFAULT_FROM_EMAIL,  # From email
+            [user.email],  # To email
+            html_message=html_email_content,
+            fail_silently=False,
+        )
+    except Exception as email_error:
+        # If email fails, still show success message but add warning
+        messages.warning(request, 'Welcome email could not be sent.')
+
+
+# Helper function to show form errors
+def show_form_errors(request, form):
+    """Display form validation errors to user."""
+    for field_name, error_list in form.errors.items():
+        for error_message in error_list:
+            messages.error(request, f'{field_name}: {error_message}')
 
 
 # ===========================

@@ -347,18 +347,24 @@ a:hover {
     align-items: center;
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0 20px;
+    padding: 0 30px;
 }
 
 .navbar-brand {
     font-family: 'Playfair Display', serif;
-    font-size: 1.8rem;
+    font-size: 3.5rem;
     font-weight: 700;
     color: var(--dark-color);
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 1rem;
+    margin-left: 15px;
     transition: all 0.4s ease;
+}
+
+.navbar-brand i {
+    font-size: 3.2rem;
+    color: var(--primary-color);
 }
 
 .navbar-brand:hover {
@@ -541,7 +547,7 @@ a:hover {
 }
 
 /* ============================
-   HERO SECTION
+   HERO SECTION WITH MOTION
    ============================ */
 
 .hero {
@@ -556,22 +562,303 @@ a:hover {
     text-align: center;
     position: relative;
     overflow: hidden;
-    animation: gradientMotion 8s ease infinite;
+    animation: gradientMotion 15s ease infinite;
     border-radius: 32px;
     border: 3px solid rgba(201, 169, 97, 0.4);
     box-shadow: 0 20px 60px rgba(61, 50, 40, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
     margin: 2rem 2rem;
 }
 
-@keyframes gradientMotion {
+/* Animated Background Elements */
+.hero-animation {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 1;
+}
+
+/* Force animation elements to be visible */
+.hero-animation .floating-diamond,
+.hero-animation .floating-star,
+.hero-animation .floating-circle,
+.hero-animation .gradient-orb {
+    animation-play-state: running !important;
+    animation-fill-mode: forwards !important;
+    transform-origin: center !important;
+}
+
+/* Floating Diamond Animations */
+.floating-diamond {
+    position: absolute;
+    width: 35px;
+    height: 35px;
+    background: linear-gradient(45deg, rgba(255, 215, 0, 0.95), rgba(255, 237, 78, 0.9), rgba(255, 255, 255, 0.7));
+    transform: rotate(45deg);
+    border-radius: 4px;
+    box-shadow: 
+        0 0 50px rgba(255, 215, 0, 1),
+        inset 0 0 25px rgba(255, 255, 255, 0.4);
+    z-index: 50;
+    border: 2px solid rgba(255, 215, 0, 0.8);
+    will-change: transform, opacity;
+    display: block !important;
+    visibility: visible !important;
+}
+
+.diamond-1 {
+    top: 20% !important;
+    left: 15% !important;
+    animation: floatDiamondLarge 6s ease-in-out infinite !important;
+    opacity: 1 !important;
+    display: block !important;
+}
+
+.diamond-2 {
+    top: 60% !important;
+    right: 20% !important;
+    animation: floatDiamondLarge 8s ease-in-out infinite reverse !important;
+    animation-delay: -2s !important;
+    opacity: 1 !important;
+    display: block !important;
+}
+
+.diamond-3 {
+    top: 30% !important;
+    right: 10% !important;
+    animation: floatDiamondLarge 7s ease-in-out infinite !important;
+    animation-delay: -3s !important;
+    opacity: 1 !important;
+    display: block !important;
+}
+
+.diamond-4 {
+    bottom: 25% !important;
+    left: 25% !important;
+    animation: floatDiamondLarge 9s ease-in-out infinite reverse !important;
+    animation-delay: -1s !important;
+    opacity: 1 !important;
+    display: block !important;
+}
+
+@keyframes floatDiamondLarge {
     0% {
-        background-position: 0% 50%;
+        transform: rotate(45deg) translate(0, 0) scale(1);
+        opacity: 0.9;
+        filter: brightness(1);
+    }
+    25% {
+        transform: rotate(135deg) translate(80px, -60px) scale(1.5);
+        opacity: 1;
+        filter: brightness(1.2);
     }
     50% {
-        background-position: 100% 50%;
+        transform: rotate(225deg) translate(40px, -120px) scale(0.8);
+        opacity: 0.8;
+        filter: brightness(0.9);
+    }
+    75% {
+        transform: rotate(315deg) translate(-60px, -80px) scale(1.3);
+        opacity: 1;
+        filter: brightness(1.1);
     }
     100% {
-        background-position: 0% 50%;
+        transform: rotate(405deg) translate(0, 0) scale(1);
+        opacity: 0.9;
+        filter: brightness(1);
+    }
+}
+
+/* Floating Stars */
+.floating-star {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 1), rgba(255, 215, 0, 0.95), rgba(201, 169, 97, 0.9));
+    border-radius: 50%;
+    box-shadow: 
+        0 0 50px rgba(255, 255, 255, 1),
+        0 0 25px rgba(255, 215, 0, 0.9);
+    z-index: 50;
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    will-change: transform, opacity;
+    display: block !important;
+    visibility: visible !important;
+}
+
+.star-1 {
+    top: 25% !important;
+    left: 60% !important;
+    animation: starMovement 4s ease-in-out infinite !important;
+    opacity: 1 !important;
+    display: block !important;
+}
+
+.star-2 {
+    top: 70% !important;
+    left: 40% !important;
+    animation: starMovement 5s ease-in-out infinite reverse !important;
+    animation-delay: -1s !important;
+    opacity: 1 !important;
+    display: block !important;
+}
+
+.star-3 {
+    top: 45% !important;
+    right: 30% !important;
+    animation: starMovement 6s ease-in-out infinite !important;
+    animation-delay: -2.5s !important;
+    opacity: 1 !important;
+    display: block !important;
+}
+
+@keyframes starMovement {
+    0%, 100% {
+        opacity: 0.8;
+        transform: translate(0, 0) scale(1) rotate(0deg);
+        filter: brightness(1);
+    }
+    25% {
+        opacity: 1;
+        transform: translate(70px, -40px) scale(1.8) rotate(90deg);
+        filter: brightness(1.3);
+    }
+    50% {
+        opacity: 0.9;
+        transform: translate(-40px, -100px) scale(0.9) rotate(180deg);
+        filter: brightness(1.1);
+    }
+    75% {
+        opacity: 1;
+        transform: translate(100px, -70px) scale(1.5) rotate(270deg);
+        filter: brightness(1.2);
+    }
+}
+
+/* Floating Circles */
+.floating-circle {
+    position: absolute;
+    border: 4px solid rgba(255, 215, 0, 0.9);
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.3), rgba(255, 215, 0, 0.2));
+    box-shadow: 
+        0 0 40px rgba(255, 215, 0, 0.8),
+        inset 0 0 25px rgba(255, 255, 255, 0.3);
+    z-index: 50;
+    will-change: transform, opacity;
+    display: block !important;
+    visibility: visible !important;
+}
+
+.circle-1 {
+    width: 90px;
+    height: 90px;
+    top: 15%;
+    left: 80%;
+    animation: circleOrbit 12s linear infinite;
+}
+
+.circle-2 {
+    width: 70px;
+    height: 70px;
+    bottom: 20%;
+    right: 15%;
+    animation: circleOrbit 15s linear infinite reverse;
+    animation-delay: -5s;
+}
+
+@keyframes circleOrbit {
+    0% {
+        transform: translate(0, 0) rotate(0deg) scale(1);
+        opacity: 0.6;
+        filter: brightness(1);
+    }
+    25% {
+        opacity: 1;
+        transform: translate(100px, -80px) rotate(90deg) scale(1.4);
+        filter: brightness(1.2);
+    }
+    50% {
+        transform: translate(80px, -150px) rotate(180deg) scale(0.8);
+        opacity: 0.8;
+        filter: brightness(0.9);
+    }
+    75% {
+        opacity: 1;
+        transform: translate(-80px, -120px) rotate(270deg) scale(1.2);
+        filter: brightness(1.1);
+    }
+    100% {
+        transform: translate(0, 0) rotate(360deg) scale(1);
+        opacity: 0.6;
+        filter: brightness(1);
+    }
+}
+
+/* Gradient Orbs */
+.gradient-orb {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(201, 169, 97, 0.4), rgba(217, 179, 130, 0.2), transparent);
+    filter: blur(0.5px);
+    z-index: 1;
+}
+
+.orb-1 {
+    width: 120px;
+    height: 120px;
+    top: 10%;
+    left: 5%;
+    animation: orbWave 15s ease-in-out infinite;
+}
+
+.orb-2 {
+    width: 100px;
+    height: 100px;
+    bottom: 15%;
+    right: 5%;
+    animation: orbWave 18s ease-in-out infinite reverse;
+    animation-delay: -8s;
+}
+
+@keyframes orbWave {
+    0%, 100% {
+        transform: translate(0, 0) scale(1);
+        opacity: 0.3;
+    }
+    25% {
+        transform: translate(80px, -60px) scale(1.4);
+        opacity: 0.6;
+    }
+    50% {
+        transform: translate(120px, -120px) scale(0.6);
+        opacity: 0.4;
+    }
+    75% {
+        transform: translate(40px, -80px) scale(1.2);
+        opacity: 0.5;
+    }
+}
+
+/* Enhanced Gradient Motion */
+@keyframes gradientMotion {
+    0% {
+        background-position: center, 0% 50%;
+    }
+    25% {
+        background-position: center, 100% 75%;
+    }
+    50% {
+        background-position: center, 100% 50%;
+    }
+    75% {
+        background-position: center, 0% 25%;
+    }
+    100% {
+        background-position: center, 0% 50%;
     }
 }
 
@@ -583,21 +870,11 @@ a:hover {
     right: 0;
     bottom: 0;
     background: 
-        radial-gradient(circle at 20% 50%, rgba(201, 169, 97, 0.2) 0%, transparent 50%),
-        radial-gradient(circle at 80% 80%, rgba(139, 115, 85, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 20% 50%, rgba(201, 169, 97, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(139, 115, 85, 0.1) 0%, transparent 50%),
         radial-gradient(circle at 40% 20%, rgba(201, 169, 97, 0.1) 0%, transparent 50%);
     animation: gradientShift 10s ease-in-out infinite;
-}
-
-@keyframes gradientShift {
-    0%, 100% { 
-        filter: brightness(1);
-        transform: scale(1);
-    }
-    50% { 
-        filter: brightness(1.1);
-        transform: scale(1.05);
-    }
+    z-index: 0;
 }
 
 .hero::after {
@@ -607,8 +884,10 @@ a:hover {
     right: -50%;
     width: 100%;
     height: 100%;
-    background: radial-gradient(circle, rgba(217, 179, 130, 0.15) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(217, 179, 130, 0.1) 0%, transparent 70%);
     animation: float 8s ease-in-out infinite;
+    z-index: 0;
+}
 }
 
 @keyframes float {
@@ -618,11 +897,11 @@ a:hover {
 
 .hero-content {
     position: relative;
-    z-index: 2;
-    animation: fadeInUp 0.8s ease-out;
+    z-index: 10;
+    animation: heroContentFadeIn 1.2s ease-out;
 }
 
-.hero h1 {
+.hero-title {
     font-size: 3.8rem;
     color: var(--white);
     margin-bottom: 1rem;
@@ -630,6 +909,9 @@ a:hover {
     font-weight: 700;
     letter-spacing: -1px;
     text-shadow: 0 4px 20px rgba(61, 50, 40, 0.5);
+    animation: titleSlideUp 1s ease-out 0.3s both;
+    position: relative;
+    z-index: 10;
 }
 
 .hero-subtitle {
@@ -638,6 +920,62 @@ a:hover {
     margin-bottom: 2rem;
     font-weight: 300;
     letter-spacing: 2px;
+    animation: subtitleSlideUp 1s ease-out 0.6s both;
+    position: relative;
+    z-index: 10;
+}
+
+.hero-btn {
+    animation: btnSlideUp 1s ease-out 0.9s both;
+    transform: translateY(20px);
+    opacity: 0;
+    position: relative;
+    z-index: 10;
+}
+
+/* Hero Content Animations */
+@keyframes heroContentFadeIn {
+    0% {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes titleSlideUp {
+    0% {
+        opacity: 0;
+        transform: translateY(60px) scale(0.8);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes subtitleSlideUp {
+    0% {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes btnSlideUp {
+    0% {
+        opacity: 0;
+        transform: translateY(30px) scale(0.9);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
 }
 
 /* ============================
@@ -645,7 +983,6 @@ a:hover {
    ============================ */
 
 .page-banner,
-.contact-hero,
 .shop-banner,
 .search-banner {
     background: 
@@ -659,7 +996,7 @@ a:hover {
     text-align: center;
     position: relative;
     overflow: hidden;
-    animation: gradientMotion 8s ease infinite;
+    animation: gradientMotion 15s ease infinite;
     border-radius: 32px;
     border: 3px solid rgba(201, 169, 97, 0.4);
     box-shadow: 0 20px 60px rgba(61, 50, 40, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
@@ -667,7 +1004,6 @@ a:hover {
 }
 
 .page-banner::before,
-.contact-hero::before,
 .shop-banner::before,
 .search-banner::before {
     content: '';
@@ -684,7 +1020,6 @@ a:hover {
 }
 
 .page-banner::after,
-.contact-hero::after,
 .shop-banner::after,
 .search-banner::after {
     content: '';
@@ -698,7 +1033,6 @@ a:hover {
 }
 
 .page-banner h1,
-.contact-hero-title,
 .shop-banner h1,
 .search-banner h1 {
     font-size: 3.2rem;
@@ -710,10 +1044,10 @@ a:hover {
     text-shadow: 0 4px 20px rgba(61, 50, 40, 0.5);
     position: relative;
     z-index: 2;
+    animation: titleSlideUp 1s ease-out 0.3s both;
 }
 
 .page-banner p,
-.contact-hero-subtitle,
 .shop-banner p,
 .search-banner p {
     font-size: 1.1rem;
@@ -723,13 +1057,12 @@ a:hover {
     letter-spacing: 1px;
     position: relative;
     z-index: 2;
+    animation: subtitleSlideUp 1s ease-out 0.6s both;
 }
-
-.contact-hero-content,
 .page-banner-content {
     position: relative;
     z-index: 2;
-    animation: fadeInUp 0.8s ease-out;
+    animation: heroContentFadeIn 1.2s ease-out;
 }
 
 /* ============================

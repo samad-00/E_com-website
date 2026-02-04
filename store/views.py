@@ -25,11 +25,18 @@ from .sms_utils import send_sms
 # HOME VIEW
 # ===========================
 def home(request):
-    """Home page with featured products and new arrivals."""
+    """Home page - Shows featured products and new arrivals."""
+    
+    # Get featured products (maximum 8)
     featured_products = Product.objects.filter(is_featured=True)[:8]
+    
+    # Get newest products (maximum 8)
     new_products = Product.objects.filter(is_new=True).order_by('-created_at')[:8]
+    
+    # Get all categories (maximum 5 for display)
     categories = Category.objects.all()[:5]
     
+    # Prepare data to send to template
     context = {
         'featured_products': featured_products,
         'new_products': new_products,
@@ -43,34 +50,83 @@ def home(request):
 # SHOP/PRODUCTS LIST VIEW
 # ===========================
 def shop(request):
-    """Products listing with filters and sorting."""
+    """Products page - Shows all products with filters and search."""
+    
+    # Start with all products
     products = Product.objects.all()
     categories = Category.objects.all()
     
-    # Filter by category
+    # Apply category filter if user selected one
+    products = apply_category_filter(request, products)
+    
+    # Apply price range filter if user set one
+    products = apply_price_filter(request, products)
+    
+    # Apply search if user searched for something
+    products, search_query = apply_search_filter(request, products)
+    
+    # Sort products based on user choice
+    products, selected_sort = apply_sorting(request, products)
+    
+    # Split products into pages (12 per page)
+    products_page = paginate_products(request, products)
+    
+    # Get selected category for display
+    selected_category = request.GET.get('category')
+    
+    # Prepare data to send to template
+    context = {
+        'products': products_page,
+        'categories': categories,
+        'search_query': search_query,
+        'selected_category': selected_category,
+        'selected_sort': selected_sort,
+        'page_title': 'Shop - Jewelry Store',
+    }
+    return render(request, 'store/shop.html', context)
+
+
+# Helper function to filter by category
+def apply_category_filter(request, products):
+    """Filter products by category if selected."""
     category_slug = request.GET.get('category')
     if category_slug:
         category = get_object_or_404(Category, slug=category_slug)
         products = products.filter(category=category)
-    
-    # Filter by price range
+    return products
+
+
+# Helper function to filter by price
+def apply_price_filter(request, products):
+    """Filter products by price range if set."""
     price_min = request.GET.get('price_min')
     price_max = request.GET.get('price_max')
+    
     if price_min:
         products = products.filter(price__gte=float(price_min))
     if price_max:
         products = products.filter(price__lte=float(price_max))
     
-    # Search
+    return products
+
+
+# Helper function to search products
+def apply_search_filter(request, products):
+    """Search products by name or description."""
     search_query = request.GET.get('search')
     if search_query:
         products = products.filter(
             Q(name__icontains=search_query) |
             Q(description__icontains=search_query)
         )
-    
-    # Sorting
+    return products, search_query
+
+
+# Helper function to sort products
+def apply_sorting(request, products):
+    """Sort products based on user selection."""
     sort_by = request.GET.get('sort', '-created_at')
+    
     if sort_by == 'price_low':
         products = products.order_by('price')
     elif sort_by == 'price_high':
@@ -82,20 +138,16 @@ def shop(request):
     else:
         products = products.order_by(sort_by)
     
-    # Pagination
+    return products, sort_by
+
+
+# Helper function for pagination
+def paginate_products(request, products):
+    """Split products into pages (12 products per page)."""
     paginator = Paginator(products, 12)
     page_number = request.GET.get('page')
     products_page = paginator.get_page(page_number)
-    
-    context = {
-        'products': products_page,
-        'categories': categories,
-        'search_query': search_query,
-        'selected_category': category_slug,
-        'selected_sort': sort_by,
-        'page_title': 'Shop - Jewelry Store',
-    }
-    return render(request, 'store/shop.html', context)
+    return products_page
 
 
 # ===========================

@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load custom_filters %}
 
 {% block title %}{{ product.name }} - Jewelry Store{% endblock %}
 
@@ -12,15 +13,15 @@
         <div>
             <div class="product-image" style="position: relative; margin-bottom: 1rem; background: #f8f9fa; border-radius: 8px; overflow: hidden;">
                 <img id="main-image" 
-                     src="{% if product.image %}{{ product.image.url }}{% else %}{% static 'images/placeholder.svg' %}{% endif %}" 
+                     src="{% if product.image %}{{ product.image|image_url }}{% else %}{% static 'images/placeholder.svg' %}{% endif %}" 
                      alt="{{ product.name }}"
                      style="width: 100%; height: auto; display: block; cursor: zoom-in; border-radius: 8px;">
             </div>
             
             <!-- Thumbnail Gallery -->
             <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
-                <div {% if product.image %}onclick="changeImage('{{ product.image.url }}')"{% endif %} style="cursor: pointer; border-radius: 4px; overflow: hidden; border: 2px solid var(--primary-color); aspect-ratio: 1; background: #f8f9fa;">
-                    <img src="{% if product.image %}{{ product.image.url }}{% else %}{% static 'images/placeholder.jpg' %}{% endif %}" 
+                <div {% if product.image %}onclick="changeImage('{{ product.image|image_url }}')"{% endif %} style="cursor: pointer; border-radius: 4px; overflow: hidden; border: 2px solid var(--primary-color); aspect-ratio: 1; background: #f8f9fa;">
+                    <img src="{% if product.image %}{{ product.image|image_url }}{% else %}{% static 'images/placeholder.jpg' %}{% endif %}" 
                          alt="Image 1" 
                          style="width: 100%; height: 100%; object-fit: contain; border-radius: 4px;">
                 </div>
