@@ -343,28 +343,25 @@ a:hover {
 
 .nav-container {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: center;
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0 30px;
+    padding: 0 20px;
+    gap: 3rem;
 }
 
 .navbar-brand {
     font-family: 'Playfair Display', serif;
-    font-size: 3.5rem;
+    font-size: 1.8rem;
     font-weight: 700;
     color: var(--dark-color);
     display: flex;
     align-items: center;
-    gap: 1rem;
-    margin-left: 15px;
+    gap: 0.5rem;
     transition: all 0.4s ease;
-}
-
-.navbar-brand i {
-    font-size: 3.2rem;
-    color: var(--primary-color);
+    margin-right: auto;
+    order: -1;
 }
 
 .navbar-brand:hover {
@@ -377,6 +374,8 @@ a:hover {
     gap: 2.5rem;
     align-items: center;
     list-style: none;
+    flex-grow: 1;
+    justify-content: center;
 }
 
 .nav-link {
@@ -406,6 +405,7 @@ a:hover {
     display: flex;
     gap: 1.5rem;
     align-items: center;
+    margin-left: auto;
 }
 
 .nav-icon {
@@ -417,6 +417,45 @@ a:hover {
 }
 
 .nav-icon:hover {
+    color: var(--primary-color);
+}
+
+/* User account with username styling */
+.nav-user-account {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--dark-color);
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: var(--transition);
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 25px;
+    background: rgba(201, 169, 97, 0.1);
+    border: 1px solid rgba(201, 169, 97, 0.2);
+}
+
+.nav-user-account:hover {
+    color: var(--primary-color);
+    background: rgba(201, 169, 97, 0.15);
+    border-color: var(--primary-color);
+    transform: translateY(-1px);
+}
+
+.nav-user-account i {
+    font-size: 1.4rem;
+}
+
+.username-display {
+    font-size: 0.9rem;
+    font-weight: 500;
+    font-family: 'Poppins', sans-serif;
+    color: var(--dark-color);
+    white-space: nowrap;
+}
+
+.nav-user-account:hover .username-display {
     color: var(--primary-color);
 }
 

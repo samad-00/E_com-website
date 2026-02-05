@@ -7,6 +7,10 @@ Each setting controls different aspects of how the website works.
 
 from pathlib import Path
 import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 # This tells Django where our project files are located
@@ -18,14 +22,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 # This is like a password for your Django app - keep it secret!
-SECRET_KEY = 'django-insecure-dcmk1lpm#zxn7a9kts9-kdv60w=u_vf3)83y9vj6il_c*m_@tx'
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-fallback-key-change-this')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # Debug = True shows detailed error pages (good for development)
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'True').lower() == 'true'
 
 # List of allowed website addresses that can access this site
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',') if os.getenv('ALLOWED_HOSTS') else []
 
 
 # Application definition
@@ -149,18 +153,18 @@ LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'home'
 
 # Stripe Settings
-STRIPE_PUBLIC_KEY = 'pk_test_51234567890123456789'
-STRIPE_SECRET_KEY = 'sk_test_1234567890123456789'
-STRIPE_WEBHOOK_SECRET = ''  # set in environment for production
+STRIPE_PUBLIC_KEY = os.getenv('STRIPE_PUBLISHABLE_KEY', '')
+STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY', '')
+STRIPE_WEBHOOK_SECRET = os.getenv('STRIPE_WEBHOOK_SECRET', '')  # set in environment for production
 
 # Email Settings - Configuration for sending emails
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'  # Use real email sending
-EMAIL_HOST = 'smtp.gmail.com'                                  # Gmail's email server
-EMAIL_PORT = 587                                               # Gmail's email port
-EMAIL_HOST_USER = 'neonhubhai@gmail.com'                      # Your email address
-EMAIL_HOST_PASSWORD = 'gwbx rngt xzsu bisp'                   # Your app password
-EMAIL_USE_TLS = True                                           # Use secure connection
-DEFAULT_FROM_EMAIL = 'neonhubhai@gmail.com'                   # Default sender email
+EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
+EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', '587'))
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True').lower() == 'true'
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER)
 
 # Inventory
 LOW_STOCK_THRESHOLD = int(os.environ.get('LOW_STOCK_THRESHOLD', 5))

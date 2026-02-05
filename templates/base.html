@@ -82,8 +82,9 @@
                 <!-- User Account -->
                 {% if user.is_authenticated %}
                     <div class="dropdown">
-                        <a href="#" class="nav-icon" title="Account">
+                        <a href="#" class="nav-user-account" title="Account">
                             <i class="fas fa-user-circle"></i>
+                            <span class="username-display">{{ user.first_name|default:user.username }}</span>
                         </a>
                         <div class="dropdown-menu dropdown-right">
                             <a href="{% url 'profile' %}">My Profile</a>

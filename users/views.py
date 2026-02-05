@@ -37,7 +37,7 @@ def register(request):
             send_welcome_email_to_user(user, request)
             
             # Show success message and redirect to login page
-            messages.success(request, 'Account created successfully! Welcome email sent. Please log in.')
+            messages.success(request, f'Account created successfully for {user.email}! Welcome email sent. Please check your email and log in.')
             return redirect('login')
         else:
             # If form has errors, show them to user
@@ -58,6 +58,12 @@ def register(request):
 def send_welcome_email_to_user(user, request):
     """Send welcome email to newly registered user."""
     try:
+        # Debug print to check if function is called
+        print(f"Attempting to send welcome email to: {user.email}")
+        print(f"Email backend: {settings.EMAIL_BACKEND}")
+        print(f"Email host: {settings.EMAIL_HOST}")
+        print(f"Email host user: {settings.EMAIL_HOST_USER}")
+        
         # Email subject
         email_subject = 'Welcome to KIRAA!'
         
@@ -70,7 +76,7 @@ def send_welcome_email_to_user(user, request):
         plain_email_content = strip_tags(html_email_content)
         
         # Send the email
-        send_mail(
+        result = send_mail(
             email_subject,
             plain_email_content,
             settings.DEFAULT_FROM_EMAIL,  # From email
@@ -78,9 +84,20 @@ def send_welcome_email_to_user(user, request):
             html_message=html_email_content,
             fail_silently=False,
         )
+        
+        print(f"Email send result: {result}")
+        
+        if result:
+            print("Welcome email sent successfully!")
+            messages.success(request, 'Welcome email sent successfully!')
+        else:
+            print("Email send failed - result was 0")
+            messages.warning(request, 'Welcome email could not be sent.')
+            
     except Exception as email_error:
         # If email fails, still show success message but add warning
-        messages.warning(request, 'Welcome email could not be sent.')
+        print(f"Email error: {str(email_error)}")
+        messages.warning(request, f'Welcome email could not be sent: {str(email_error)}')
 
 
 # Helper function to show form errors
